@@ -1,0 +1,20 @@
+{
+  "name": "api-nodejs-domain-driven-design",
+  "version": "1.0.0",
+  "description": "- DDD é uma forma da gente manter uma comunicação de forma clara e padronizada entre todas as partes envolvidas no desenvolvimento de software. - Design Dirigido à Domínio   - Design é como nós vamos converter o problema do cliente em algo tangível e que resolve o problema em questão do domínio do cliente, ou seja, é gerar valor para o cliente através do software.   - Domínio é uma área de entendimento, onde todas as partes envolvidas na construção do software devem possuir um entendimento comum.   - A primeira etapa de um software é compreender o problema do cliente (domain experts).   - `Domain experts`: Pessoas que entendem a fundo sobre o contexto/área de negócio do problema que o cliente quer resolver.     - As pessoas que estão no dia-a-dia lidando com as situações do problema são os domain experts.     - isso quer dizer que devemos ter uma comunicação constante com o cliente e sseus domain experts para extrair ao máximo informações sobre o domínio do problema.   - `Linguagem Ubígua`: Essas conversas com os Domain Experts vão gerar uma linguagem ubígua, que são termos comuns entre as partes envolvidas no projeto para que todos tenham uma equidade de entendimento.     - Exemplo: Cliente fala \"Pedido\", desenvolvedor fala \"Pedido\", DBA fala \"Pedido\", todos estão falando a mesma coisa.     - É uma linguagem universal aonde todos podem conversas por igual.     - É uma característica que deve ser alcançada partindo de todas as partes - Alguns termos comuns no DDD:   - Agreggates   - Value Object   - Domain Events   - Domains   - Subdomains   - Bounded contexts   - Entities   - Use cases",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.3"
+  },
+  "devDependencies": {
+    "vitest": "^1.4.0"
+  }
+}
