@@ -1,5 +1,4 @@
-import { randomUUID } from "crypto"
-import { UniqueEntityID } from "./unique-entity-id"
+import { UniqueEntityID } from './unique-entity-id'
 
 export class Entity<Props> {
   private _id: UniqueEntityID

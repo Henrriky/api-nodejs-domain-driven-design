@@ -1,25 +1,23 @@
-import { Answer } from "../entities/Answer"
-import { Instructor } from "../entities/Instructor"
-import { Question } from "../entities/Question"
-import { Student } from "../entities/Student"
-import { Slug } from "../entities/value-objects/slug"
-import { AnswersRepository } from "../repositories/answers-repository"
-import { AnswerQuestionUseCase } from "./answer-question"
+import { Answer } from '../entities/Answer'
+import { Instructor } from '../entities/Instructor'
+import { Question } from '../entities/Question'
+import { Student } from '../entities/Student'
+import { Slug } from '../entities/value-objects/slug'
+import { AnswersRepository } from '../repositories/answers-repository'
+import { AnswerQuestionUseCase } from './answer-question'
 import { expect, test } from 'vitest'
 
-let fakeAnswersRepository: AnswersRepository = {
-  create: async (answer: Answer) => {
-    return
-  }
+const fakeAnswersRepository: AnswersRepository = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  create: async (answer: Answer) => {},
 }
 test('create an answer', async () => {
-  
   const answerQuestion = new AnswerQuestionUseCase(fakeAnswersRepository)
   const instructor = Instructor.create({
-    name: "Belleti"
+    name: 'Belleti',
   })
   const student = Student.create({
-    name: "Henrriky"
+    name: 'Henrriky',
   })
   const question = Question.create({
     title: 'Title question',
@@ -30,7 +28,7 @@ test('create an answer', async () => {
   const answer = await answerQuestion.execute({
     instructorId: instructor.id.toString(),
     questionId: question.id.toString(),
-    content: 'Content answer'
+    content: 'Content answer',
   })
 
   expect(answer.content).toEqual('Content answer')

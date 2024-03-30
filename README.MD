@@ -289,3 +289,23 @@
         }
       })
     ```
+## Configurar ESLINT
+
+- `npm install eslint @rocketseat/eslint-config -D`
+- `npm install eslint-plugin-vitest-globals -D`
+- `.eslintrc`
+  ```json
+  {
+    "extends": ["@rocketseat/eslint-config/node", "plugin:vitest-globals/recommended"],
+    "env": {
+      "vitest-globals/env": true
+    }
+  }
+  ```
+- `package.json`
+  ```json
+  "scripts": {
+    "lint": "eslint --ext .ts src",
+    "lint:fix": "eslint --ext .ts src --fix"
+  }
+  ```
