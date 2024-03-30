@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^20.11.30",
+    "dayjs": "^1.11.10",
     "typescript": "^5.4.3"
   },
   "devDependencies": {
