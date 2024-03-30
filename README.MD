@@ -199,4 +199,39 @@
 
 ## Value objects
 
-- 
+- Slug: É uma representação do tipo da pergunta sem acentuação para melhorar a indexação no banco de dados e facilitar a busca, ou seja, ao invés de utilizar um id para representar a pergunta, usar uma representação da descrição dela.
+- Esse slug pode ser apenas um texto sem acentos e espaços, por exemplo, `como-fazer-uma-pergunta`. No entanto, caso a nossa aplicação permita que o usuário crie perguntas com o mesmo nome, o slug não seria único, então isso significa que temos `regras de negócio` para a criação do slug. Diante disso, o DDD, diz que a gente deve trabalhar com `Value Objects`, que são objetos que não são entidades anêmicas e que realmente possuem uma validação por trás de cada propriedade, deixando isso de forma explicita na construção do objeto.
+- Value Objects: propriedades das entidades que possuem regras de negócio associadas a elas.
+- Exemplo:
+  - Criar pasta `/domain/value-objects`
+  - Criar uma classe `Slug`
+  ```ts
+  export class Slug {
+
+    public value: string
+
+    constructor (text: string) {
+      this.value = text
+    }
+
+    /**
+    * Receives a string and normalize it as a slug.
+    * Example: "An example title" => "an-example-title"
+    * 
+    * @param text {string}
+    */
+    static createFromText (text: string) {
+      const slugText = text
+        .normalize("NFKD")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w-]+/g, '')
+        .replace(/_/g, '-')
+        .replace(/--+/g, '-')
+        .replace(/-$/g, '')
+
+      return new Slug(slugText)
+    }
+  }
+  ```
