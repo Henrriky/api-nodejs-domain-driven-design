@@ -235,3 +235,29 @@
     }
   }
   ```
+## Classe base das entidades
+
+- Criar pasta `/core/entities` -> Compartilhamento de código reutilizável
+  - Exemplo:
+    - ID
+    - props
+    - uuid
+  ```ts
+  // Com esse código identificamos os pontos de repetição e refatoramos com uma classe Entity base que realiza a associação dos campos e da criação do ID de forma automatica.
+  import { randomUUID } from "crypto"
+
+  export class Entity<Props> {
+    private _id: string
+    protected props: Props
+
+    get id() {
+      return this._id
+    }
+
+    protected constructor(props: Props, id?: string) {
+      this.props = props
+      this._id = id ?? randomUUID()
+    }
+  }
+  ```
+
