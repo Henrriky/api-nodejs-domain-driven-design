@@ -16,6 +16,7 @@
     "typescript": "^5.4.3"
   },
   "devDependencies": {
+    "vite-tsconfig-paths": "^4.3.2",
     "vitest": "^1.4.0"
   }
 }
