@@ -235,6 +235,7 @@
     }
   }
   ```
+
 ## Classe base das entidades
 
 - Criar pasta `/core/entities` -> Compartilhamento de código reutilizável
@@ -289,6 +290,7 @@
         }
       })
     ```
+
 ## Configurar ESLINT
 
 - `npm install eslint @rocketseat/eslint-config -D`
@@ -309,3 +311,62 @@
     "lint:fix": "eslint --ext .ts src --fix"
   }
   ```
+
+# Fundamentos da Clean Architecture
+
+- Quando falamos em `Design de Software` estamos focados em como vamos converter uma problema ou necessidade real de um cliente em um software, ou seja, quando falamos de projeto ou design de software a ideia é focar em como vamos resolver o problema do cliente e não em como vamos implementar o software.
+  - Exemplos: BDD (Behavior Driven Design), TDD (Test Driven Design) e DDD (Domain Driven Design),
+- Por outro lado a `Arquitetura de Software` já tem uma relação mais forte de como vamos implementar o código da aplicação.
+  - Exemplos: 
+    - Arquitetura em camadas (Layered Architecuture)
+    - Arquitetura Client-Servidor (Client Server Architecture)
+    - Arquitetura Orientada a Serviços (Service Oriented Architecture)
+    - Arquitetura Event Driven Design (Event Driven Architecture) 
+    - Arquitetura Hexagonal (Hexagonal Architecture) 
+    - Arquitetura Limpa (Clean Architecture)
+- A base da `Arquitetura Limpa` é o conceito de **desacoplamento** que nada mais é que a capacidade de uma parte do software ser alterada sem que isso afete outras partes do software, ou seja, elas devem ser independentes.
+- Cada um dos circulos do diagrama da `Clean Architecture` representam cada parte da aplicação, onde o círculo mais interno é o mais importante, pois é o que contém as regras de negócio do software.
+
+
+## Camadas da Clean Architecture
+
+- O usuário vem de fora para dentro, ou seja, ele se comunica através da camada mais externa, como: `UI`, `Controllers`
+- Cada um dos circulos do diagrama da `Clean Architecture` representam cada parte da aplicação, onde o círculo mais interno é o mais importante, pois é o que contém as regras de negócio do software.
+- Cada flecha das camadas representam a dependência entre elas. Por exemplo, a camada azul depende da camada verde, a camada verde depende da camada amarela e assim por diante.
+- Um caso de uso pode chamar uma entidade, mas uma entidade não pode chamar um caso de uso.
+  - Na camada azul de `Frameworks & Drivers` geralmente ficam coisas externas (forma da aplicação se comunicar com o mundo externo): 
+    - Chamada de camada de **INFRA** (Infraestrutura)
+    - `UI (GUI, CLI)`
+    - `External Interfaces (RabbitMQ, Redis Pub Sub, Services, gRPC)`
+    - `DB (MySQL, PostgreeSQL, MongoDB, Redis Cache)`
+    - `Devices (Android, IOS)`
+    - `WEB (Javascript Fetch)`
+  - Na camada verde de `Interface Adapters`, geralmente é aonde ficam localizados os recursos que vão adapter as informações que são recebidas na camada superior (azul) para as camadas mais internas. Alguns dos recursos que podem ser encontrados nessa camada são:
+    - Chamada de camada de **ADAPTER** (Adaptadores)
+    - `Controllers (Express, Koa, Fastify)`: Os controllers são responsáveis por receber as solicitações externas do sistema, interpretá-las e acionar as ações apropriadas nos casos de uso correspondentes. Eles servem como uma camada intermediária entre as interfaces externas (como interfaces de usuário ou serviços web) e os casos de uso da aplicação. Os controllers não contêm lógica de negócios, mas simplesmente coordenam o fluxo de execução com base nas solicitações recebidas.
+    - `Gateways`: Geralmente interfaces abstratas que permitem que a camada verde interaja com recursos externos, como bancos de dados, serviços web ou sistemas legados. Eles encapsulam a lógica de acesso e comunicação com esses recursos externos, garantindo que a camada de negócios permaneça independente de detalhes de implementação específicos. Por exemplo, um gateway de banco de dados pode definir métodos para buscar, salvar, atualizar ou excluir dados de um banco de dados, enquanto oculta os detalhes de acesso específicos do banco de dados.
+    - `Presenters (Serializers, ViewModels)`:  Os presenters são responsáveis por converter os dados retornados pelos casos de uso em um formato adequado para ser apresentado nas interfaces de usuário. Eles formatam e estruturam os dados para atender às necessidades das interfaces de usuário específicas. Os presenters são especialmente úteis em arquiteturas em que a interface de usuário é separada da lógica de negócios, como em aplicações web onde o back-end e o front-end são desacoplados.
+    - No final das contas, o objetivo dessa camada é proteger a camada mais interna das implementações das camadas mais externas (azul). Isso quer dizer que podemos utilizar os principios SOLID como inversão de depêndencia para que a camada mais interna não dependa de implementações de camadas mais externas.
+    - Nossos casos de uso não devem depender diretamente da camada de **INFRA**
+  - Na camada vermelha `Application Business Rules`:
+    - Esta é uma das camadas mais interna e central da arquitetura, onde residem as regras de negócio principais da aplicação. Ela é composta por entidades de domínio e casos de uso que encapsulam a lógica de negócio da aplicação.
+    - `Entities (Entidades)`: Representam os objetos fundamentais e conceitos de negócio da aplicação. Elas encapsulam estado e comportamento relacionados a um conceito de negócio específico e são independentes de qualquer detalhe de implementação externa.
+    - `Use Cases (Casos de Uso)`: Representam as diferentes funcionalidades e processos que o sistema oferece aos usuários. Cada caso de uso encapsula uma operação específica do sistema e coordena a interação entre as entidades e os gateways para realizar a funcionalidade desejada.
+  - Na camada amarela `Enterprise Business Rules`:
+    - Esta camada contém regras de negócio de nível mais alto que são específicas do domínio da aplicação. Ela é responsável por coordenar e orquestrar a execução de casos de uso e garantir que as regras de negócio sejam aplicadas de forma consistente em toda a aplicação.
+    - Esta camada serve como uma interface entre as regras de negócio na camada vermelha e as estruturas de dados externas. Ela inclui entidades de banco de dados e estruturas de dados específicas do framework que são usadas para persistir dados ou representar informações na interface com o usuário.
+    - Database Entities (Entidades de Banco de Dados): São estruturas de dados que representam entidades de negócio em um formato adequado para armazenamento e recuperação em um banco de dados.
+    - Frameworks Entities (Entidades de Frameworks): São estruturas de dados específicas do framework ou da tecnologia utilizada na camada de Frameworks & Drivers que são usadas para representar informações na interface com o usuário. Por exemplo, DTOs (Data Transfer Objects) em uma aplicação web.
+
+## Refatorando código
+
+- Como o projeto tem como objetivo a abordagem do DDD, nos vamos chamar os `Use Cases` e `Entities` de **Domain**
+  - As entidades e casos de uso fazem parte do domínio, que é a area de conhecimento do problema que estamos abstraindo para um software.
+  - Além disso, uma aplicação do DDD podem ter vários `Subdomains`, que são uma espécie de "setores" do problema que estamos resolvendo, e que geralmente são dividos em pasta e módulos, ou no caso de microserviços, em serviços diferentes.
+    - Eles são muito úteis para identificar microserviços e separar a aplicação em partes menores e mais gerenciáveis.
+  - Vamos criar um `Subdomain` chamado de `forum`
+    - Criar pasta `/domain/forum/application` -> Indica os casos de uso da arquitetura limpa
+      - Repositories
+      - Use cases
+    - Criar pasta `/domain/forum/enterprise` -> Indica as entities da arquitetura limpa
+      - Entities
