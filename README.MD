@@ -341,6 +341,7 @@
     - `DB (MySQL, PostgreeSQL, MongoDB, Redis Cache)`
     - `Devices (Android, IOS)`
     - `WEB (Javascript Fetch)`
+
   - Na camada verde de `Interface Adapters`, geralmente é aonde ficam localizados os recursos que vão adapter as informações que são recebidas na camada superior (azul) para as camadas mais internas. Alguns dos recursos que podem ser encontrados nessa camada são:
     - Chamada de camada de **ADAPTER** (Adaptadores)
     - `Controllers (Express, Koa, Fastify)`: Os controllers são responsáveis por receber as solicitações externas do sistema, interpretá-las e acionar as ações apropriadas nos casos de uso correspondentes. Eles servem como uma camada intermediária entre as interfaces externas (como interfaces de usuário ou serviços web) e os casos de uso da aplicação. Os controllers não contêm lógica de negócios, mas simplesmente coordenam o fluxo de execução com base nas solicitações recebidas.
@@ -348,10 +349,12 @@
     - `Presenters (Serializers, ViewModels)`:  Os presenters são responsáveis por converter os dados retornados pelos casos de uso em um formato adequado para ser apresentado nas interfaces de usuário. Eles formatam e estruturam os dados para atender às necessidades das interfaces de usuário específicas. Os presenters são especialmente úteis em arquiteturas em que a interface de usuário é separada da lógica de negócios, como em aplicações web onde o back-end e o front-end são desacoplados.
     - No final das contas, o objetivo dessa camada é proteger a camada mais interna das implementações das camadas mais externas (azul). Isso quer dizer que podemos utilizar os principios SOLID como inversão de depêndencia para que a camada mais interna não dependa de implementações de camadas mais externas.
     - Nossos casos de uso não devem depender diretamente da camada de **INFRA**
+
   - Na camada vermelha `Application Business Rules`:
     - Esta é uma das camadas mais interna e central da arquitetura, onde residem as regras de negócio principais da aplicação. Ela é composta por entidades de domínio e casos de uso que encapsulam a lógica de negócio da aplicação.
     - `Entities (Entidades)`: Representam os objetos fundamentais e conceitos de negócio da aplicação. Elas encapsulam estado e comportamento relacionados a um conceito de negócio específico e são independentes de qualquer detalhe de implementação externa.
     - `Use Cases (Casos de Uso)`: Representam as diferentes funcionalidades e processos que o sistema oferece aos usuários. Cada caso de uso encapsula uma operação específica do sistema e coordena a interação entre as entidades e os gateways para realizar a funcionalidade desejada.
+  
   - Na camada amarela `Enterprise Business Rules`:
     - Esta camada contém regras de negócio de nível mais alto que são específicas do domínio da aplicação. Ela é responsável por coordenar e orquestrar a execução de casos de uso e garantir que as regras de negócio sejam aplicadas de forma consistente em toda a aplicação.
     - Esta camada serve como uma interface entre as regras de negócio na camada vermelha e as estruturas de dados externas. Ela inclui entidades de banco de dados e estruturas de dados específicas do framework que são usadas para persistir dados ou representar informações na interface com o usuário.
@@ -370,3 +373,15 @@
       - Use cases
     - Criar pasta `/domain/forum/enterprise` -> Indica as entities da arquitetura limpa
       - Entities
+
+# Casos de uso
+
+## Caso de uso Criar Pergunta
+
+- Criação de um sistema de fórum:
+  - Perguntas
+    - Podem ser respondidas por alunos ou instrutores.
+    - Comentários.
+  - Resposta.
+    - Comentários.
+-
