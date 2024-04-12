@@ -384,4 +384,80 @@
     - Comentários.
   - Resposta.
     - Comentários.
--
+```ts
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Question } from '../../enterprise/entities/Question'
+import { QuestionsRepository } from '../repositories/questions-repository'
+
+interface CreateQuestionUseCaseInput {
+  authorId: string
+  title: string
+  content: string
+}
+
+interface CreateQuestionUseCaseOutput {
+  question: Question
+}
+
+export class CreateQuestionUseCase {
+  constructor(private questionsRepository: QuestionsRepository) {}
+
+  async execute({
+    authorId,
+    title,
+    content,
+  }: CreateQuestionUseCaseInput): Promise<CreateQuestionUseCaseOutput> {
+    const question = Question.create({
+      authorId: new UniqueEntityID(authorId),
+      title,
+      content,
+    })
+
+    await this.questionsRepository.create(question)
+
+    return {
+      question,
+    }
+  }
+}
+```
+
+## Refatorando testes unitários
+
+- Extrair lógica de in memory repository para um arquivo separado
+```ts
+export class InMemoryAnswersRepository implements AnswersRepository {
+  private answers: Answer[] = []
+
+  async create(answer: Answer) {
+    this.answers.push(answer)
+  }
+}
+export class InMemoryQuestionsRepository implements QuestionsRepository {
+  private questions: Question[] = []
+
+  async create(question: Question) {
+    this.questions.push(question)
+  }
+}
+
+let questionsRepository: QuestionsRepository
+let usecase: CreateQuestionUseCase
+
+describe('Create Question', () => {
+  beforeEach(() => {
+    questionsRepository = new InMemoryQuestionsRepository()
+    usecase = new CreateQuestionUseCase(questionsRepository)
+  })
+
+  it('should be able to create a question', async () => {
+    const { question } = await usecase.execute({
+      authorId: '1',
+      title: 'New question',
+      content: 'Content question',
+    })
+
+    expect(question.id).toBeTruthy()
+  })
+})
+```
