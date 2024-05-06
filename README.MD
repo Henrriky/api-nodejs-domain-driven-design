@@ -479,3 +479,7 @@ describe('Create Question', () => {
   - Criar pasta `factories`
   - Criar arquivo `make-question.ts`
 
+### Gerando dados ficticios
+
+- Utilizar a biblioteca faker
+- `npm i @faker-js/faker -D`
