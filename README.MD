@@ -483,3 +483,15 @@ describe('Create Question', () => {
 
 - Utilizar a biblioteca faker
 - `npm i @faker-js/faker -D`
+
+## Caso de uso: Remover uma pergunta
+
+- [X] Criar `Delete Question Use Case`
+  - [X] Deve utilizar o método `findById` do `QuestionRepository`
+  - [X] Deve verificar se a `Question` do id existe ou não, caso não exista retornar um erro indicando que a pergunta não foi encontrada
+  - [X] Deve verificar se o `authorId` da `Question` é igual ao `authorId` passado no input, caso não seja, retornar um erro indicando que o usuário não tem permissão para deletar a pergunta
+  - [X] Deve chamar o método `delete` do `QuestionRepository`
+- [X] Criar `QuestionsRepository` com o método `delete` que recebe a `Question` e o método `findById` que recebe o id da `Question` e retorna a `Question` ou `null`
+  - [X] Criar implementação do método `delete` no `InMemoryQuestionsRepository`
+  - [X] Criar implementação do método `findById` no `InMemoryQuestionsRepository`
+- [] Criar testes unitários para o `Delete Question Use Case`

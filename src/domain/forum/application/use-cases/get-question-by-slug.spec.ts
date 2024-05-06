@@ -27,4 +27,12 @@ describe('Get Question By Slug', () => {
     expect(question.id).toBeTruthy()
     expect(question.title).toEqual(newQuestion.title)
   })
+
+  it('should be return an error if the question does not exist', async () => {
+    await expect(() =>
+      usecase.execute({
+        slug: 'non-existent-slug',
+      }),
+    ).rejects.toBeInstanceOf(Error)
+  })
 })
