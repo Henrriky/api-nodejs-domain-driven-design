@@ -26,7 +26,7 @@ describe('Answer Question', () => {
       title: 'Title question',
       content: 'Content question',
       authorId: student.id,
-      slug: new Slug('Title question'),
+      slug: Slug.create('title-question'),
     })
     const { answer } = await usecase.execute({
       instructorId: instructor.id.toString(),

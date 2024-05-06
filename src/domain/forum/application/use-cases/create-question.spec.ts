@@ -19,6 +19,6 @@ describe('Create Question', () => {
     })
 
     expect(question.id).toBeTruthy()
-    expect(inMemoryQuestionRepository.questions[0].id).toBe(question.id)
+    expect(inMemoryQuestionRepository.items[0].id).toBe(question.id)
   })
 })
