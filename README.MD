@@ -441,13 +441,13 @@ export class InMemoryQuestionsRepository implements QuestionsRepository {
   }
 }
 
-let questionsRepository: QuestionsRepository
+let inMemoryQuestionRepository: InMemoryQuestionsRepository
 let usecase: CreateQuestionUseCase
 
 describe('Create Question', () => {
   beforeEach(() => {
-    questionsRepository = new InMemoryQuestionsRepository()
-    usecase = new CreateQuestionUseCase(questionsRepository)
+    inMemoryQuestionRepository = new InMemoryQuestionsRepository()
+    usecase = new CreateQuestionUseCase(inMemoryQuestionRepository)
   })
 
   it('should be able to create a question', async () => {
@@ -458,6 +458,24 @@ describe('Create Question', () => {
     })
 
     expect(question.id).toBeTruthy()
+    expect(inMemoryQuestionRepository.questions[0].id).toBe(question.id)
   })
 })
 ```
+
+## Caso de uso: Buscar pergunta pelo slug (descrição breve)
+
+- [X] Criar `Get Question By Slug Use Case`
+  - [X] Deve chamar o método `findBySlug` do `QuestionsRepository`
+  - [X] Deve verificar se a Question existe, caso contrário retornar um erro indicando que a pergunta não foi encontrada
+- [X] Criar `QuestionsRepository` com método `findBySlug` que pode retornar uma entidade `Question` ou `null`
+  - [X] Criar implementação do método `findBySlug` no `InMemoryQuestionsRepository`
+- [ ] Criar testes unitários para o `Get Question By Slug Use Case`
+
+### Factories dos testes
+
+- É comum no desenvolvimento de novos testes ter que instanciar diversas classes, para evitar repetição, podemos fazer uma factory da criação dessas entidades.
+- Passos:
+  - Criar pasta `factories`
+  - Criar arquivo `make-question.ts`
+
