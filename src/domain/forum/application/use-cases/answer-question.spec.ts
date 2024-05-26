@@ -35,6 +35,6 @@ describe('Answer Question', () => {
     })
 
     expect(answer.content).toEqual('Content answer')
-    expect(inMemoryAnswersRepository.answers[0].id).toBe(answer.id)
+    expect(inMemoryAnswersRepository.items[0].id).toBe(answer.id)
   })
 })

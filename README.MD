@@ -494,4 +494,18 @@ describe('Create Question', () => {
 - [X] Criar `QuestionsRepository` com o método `delete` que recebe a `Question` e o método `findById` que recebe o id da `Question` e retorna a `Question` ou `null`
   - [X] Criar implementação do método `delete` no `InMemoryQuestionsRepository`
   - [X] Criar implementação do método `findById` no `InMemoryQuestionsRepository`
-- [] Criar testes unitários para o `Delete Question Use Case`
+- [X] Criar testes unitários para o `Delete Question Use Case`
+
+## Caso de uso: Deletar uma resposta
+
+- [X] Criar `Delete Answer Use Case`
+  - [X] Deve utilizar o método `findById` do `AnswerRepository`
+  - [X] Deve verificar se a `Answer` do id existe ou não, caso não exista retornar um erro indicando que a pergunta não foi encontrada
+  - [X] Deve verificar se o `authorId` da `Answer` é igual ao `authorId` passado no input, caso não seja, retornar um erro indicando que o usuário não tem permissão para deletar a pergunta
+  - [X] Deve chamar o método `delete` do `AnswerRepository`
+- [X] Criar `AnswersRepository` com o método `delete` que recebe a `Answer` e o método `findById` que recebe o id da `Answer` e retorna a `Answer` ou `null`
+  - [X] Criar implementação do método `delete` no `InMemoryAnswersRepository`
+  - [X] Criar implementação do método `findById` no `InMemoryAnswersRepository`
+- [X] Criar testes unitários para o `Delete Answer Use Case`
+
+## 
