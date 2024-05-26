@@ -508,4 +508,6 @@ describe('Create Question', () => {
   - [X] Criar implementação do método `findById` no `InMemoryAnswersRepository`
 - [X] Criar testes unitários para o `Delete Answer Use Case`
 
-## 
+## Caso de uso: Editar uma pergunta
+
+
