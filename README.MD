@@ -521,3 +521,66 @@ describe('Create Question', () => {
   - Dado que A deve vir depois de B se o número resultante for positivo, então se invertermos a operação teremos o resultado oposto
     - Exemplo ASC: 1 - 5 = -4 (A vai antes de B)
     - Exemplo DESC: 5 - 1 = 4 (A vai depois de B)
+
+# Entidade comentário
+
+- É normal em um sistema de fórum termos comentários de respostas que não necessariamente são respostas mas que estão atreladas a ela.
+- Para criar essa entidade de domínio, vamos defini-la da seguinte forma:
+  ```ts
+  export interface AnswerCommentProps {
+    answerId: UniqueEntityID
+    authorId: UniqueEntityID
+    content: string
+    createdAt: Date
+    updatedAt?: Date
+  }
+
+  export class AnswerComment extends Entity<AnswerCommentProps> {
+    get authorId() {
+      return this.props.authorId
+    }
+
+    get answerId() {
+      return this.props.answerId
+    }
+
+    get content() {
+      return this.props.content
+    }
+
+    get createdAt() {
+      return this.props.createdAt
+    }
+
+    get updatedAt() {
+      return this.props.updatedAt
+    }
+
+    private touch() {
+      this.props.updatedAt = new Date()
+    }
+
+    set content(content: string) {
+      this.props.content = content
+      this.touch()
+    }
+
+    static create(
+      props: Optional<AnswerCommentProps, 'createdAt'>,
+      id?: UniqueEntityID,
+    ) {
+      const answerComment = new AnswerComment(
+        {
+          ...props,
+          createdAt: props.createdAt ?? new Date(), 
+        },
+        id,
+      )
+
+      return answerComment
+    }
+  }
+  ```
+- Criar também `QuestionComment`
+
+## Classe base de comentários
