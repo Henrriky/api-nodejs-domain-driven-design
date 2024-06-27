@@ -2,7 +2,6 @@ import { expect, it, describe, beforeEach } from 'vitest'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { FetchRecentQuestionsUseCase } from './fetch-recent-questions'
 import { makeQuestion } from 'test/factories/make-question'
-import { Slug } from '../../enterprise/entities/value-objects/slug'
 
 let inMemoryQuestionRepository: InMemoryQuestionsRepository
 let usecase: FetchRecentQuestionsUseCase
@@ -14,9 +13,6 @@ describe('Fetch Recent Questions', () => {
   })
 
   it('should be able to fetch recent questions', async () => {
-    const newQuestion = makeQuestion({
-      slug: Slug.create('example-question'),
-    })
 
     await inMemoryQuestionRepository.create(
       makeQuestion({

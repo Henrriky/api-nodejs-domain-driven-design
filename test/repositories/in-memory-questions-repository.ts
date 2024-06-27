@@ -25,9 +25,9 @@ export class InMemoryQuestionsRepository implements QuestionsRepository {
 
   async findManyRecent(params: PaginationParams) {
     params.page = Math.max(1, params.page);
-    const jump = 10;
-    const previousOffset = (params.page - 1) * jump
-    const finalOffset = (params.page * jump)
+    const limit = 10;
+    const previousOffset = (params.page - 1) * limit
+    const finalOffset = (params.page * limit)
 
     const questions = this.items
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
