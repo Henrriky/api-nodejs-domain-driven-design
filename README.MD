@@ -510,4 +510,14 @@ describe('Create Question', () => {
 
 ## Caso de uso: Editar uma pergunta
 
+## Caso de uso: Escolher melhor resposta
 
+## Caso de uso: Listar perguntas mais recentes
+
+- Função `sort`
+  - Deve retornar um **Número negativo** se A deve vir antes de B.
+  - Deve retornar um **Número positivo** se A deve vir depois de B.
+  - Para colocar em ordem decrescente invertemos a verificação
+  - Dado que A deve vir depois de B se o número resultante for positivo, então se invertermos a operação teremos o resultado oposto
+    - Exemplo ASC: 1 - 5 = -4 (A vai antes de B)
+    - Exemplo DESC: 5 - 1 = 4 (A vai depois de B)
