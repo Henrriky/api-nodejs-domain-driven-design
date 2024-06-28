@@ -20,7 +20,7 @@ export class DeleteAnswerCommentUseCase {
     const answerComment = await this.answerCommentsRepository.findById(answerCommentId)
 
     if (!answerComment) {
-      return failure(new ResourceNotFoundError())
+      return failure(new ResourceNotFoundError('Answer not found'))
     }
 
     if (answerComment.authorId.toString() !== authorId) {

@@ -30,11 +30,12 @@ describe('Fetch Recent Questions', () => {
       }),
     )
 
-    const { questions } = await usecase.execute({
+    const result = await usecase.execute({
       page: 1
     })
 
-    expect(questions).toEqual([
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.questions).toEqual([
       expect.objectContaining({
         createdAt: new Date(2022, 0, 24)
       }),
@@ -58,12 +59,13 @@ describe('Fetch Recent Questions', () => {
       )
     }
 
-    const { questions } = await usecase.execute({
+    const result = await usecase.execute({
       page: 3
     })
 
-    expect(questions).toHaveLength(2)
-    expect(questions).toEqual([
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.questions).toHaveLength(2)
+    expect(result.value?.questions).toEqual([
       expect.objectContaining({
         createdAt: new Date(2022, 0, 2)
       }),

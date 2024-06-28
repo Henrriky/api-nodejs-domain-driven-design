@@ -2,6 +2,8 @@ import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-r
 import { EditAnswerUseCase } from './edit-answer'
 import { makeAnswer } from 'test/factories/make-answer'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 let inMemoryAnswerRepository: InMemoryAnswersRepository
 let usecase: EditAnswerUseCase
@@ -34,13 +36,15 @@ describe('Edit Answer', () => {
   })
 
   it('should be return an error if the answer does not exist', async () => {
-    await expect(() =>
-      usecase.execute({
-        authorId: 'author-id',
-        answerId: 'non-existent-id',
-        content: "New answer content"
-      }),
-    ).rejects.toBeInstanceOf(Error)
+
+    const result = await usecase.execute({
+      authorId: 'author-id',
+      answerId: 'non-existent-id',
+      content: "New answer content"
+    })
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the author that is trying to edit the answer is not the author of the answer', async () => {
@@ -55,20 +59,13 @@ describe('Edit Answer', () => {
 
     await inMemoryAnswerRepository.create(newAnswer)
 
-    async function executeUseCase() {
-      try {
-        await usecase.execute({
-          authorId: 'another-author-id',
-          answerId: answerId.toString(),
-          content: "New answer content"
-        })
-      } catch (error) {
-        return error
-      }
-    }
+    const result = await usecase.execute({
+      authorId: 'another-author-id',
+      answerId: answerId.toString(),
+      content: "New answer content"
+    })
 
-    const error = (await executeUseCase()) as Error
-    expect(error).toBeInstanceOf(Error)
-    expect(error.message).toBe('You are not the author of this answer')
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

@@ -12,13 +12,14 @@ describe('Create Question', () => {
   })
 
   it('should be able to create a question', async () => {
-    const { question } = await usecase.execute({
+    const result = await usecase.execute({
       authorId: '1',
       title: 'New question',
       content: 'Content question',
     })
 
-    expect(question.id).toBeTruthy()
-    expect(inMemoryQuestionRepository.items[0].id).toBe(question.id)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.question.id).toBeTruthy()
+    expect(inMemoryQuestionRepository.items[0].id).toBe(result.value?.question.id)
   })
 })

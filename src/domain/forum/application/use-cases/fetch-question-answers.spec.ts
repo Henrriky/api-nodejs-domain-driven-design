@@ -23,14 +23,15 @@ describe('Fetch Question Asnwers', () => {
       questionId: new UniqueEntityID('question-1')
     }))
 
-    const { answers } = await usecase.execute(
+    const result = await usecase.execute(
       {
         questionId: 'question-1',
         page: 1
       }
-    )
-    expect(answers).toHaveLength(2)
-    expect(answers).toEqual([
+    ) 
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answers).toHaveLength(2)
+    expect(result.value?.answers).toEqual([
       expect.objectContaining({
         questionId: new UniqueEntityID('question-1')
       }),
@@ -42,14 +43,15 @@ describe('Fetch Question Asnwers', () => {
 
   it('should not be able to fetch question answers when no answer is created', async () => {
 
-    const { answers } = await usecase.execute(
+    const result = await usecase.execute(
       {
         questionId: 'question-1',
         page: 1
       }
     )
 
-    expect(answers).toHaveLength(0)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answers).toHaveLength(0)
   })
 
   it('should be able to fetch paginated question answers', async () => {
@@ -63,11 +65,12 @@ describe('Fetch Question Asnwers', () => {
       )
     }
 
-    const { answers } = await usecase.execute({
+    const result = await usecase.execute({
       questionId: 'question-1',
       page: 3
     })
 
-    expect(answers).toHaveLength(2)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answers).toHaveLength(2)
   })
 })

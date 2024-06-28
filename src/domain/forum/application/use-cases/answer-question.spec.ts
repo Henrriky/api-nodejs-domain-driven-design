@@ -28,13 +28,14 @@ describe('Answer Question', () => {
       authorId: student.id,
       slug: Slug.create('title-question'),
     })
-    const { answer } = await usecase.execute({
+    const result = await usecase.execute({
       instructorId: instructor.id.toString(),
       questionId: question.id.toString(),
       content: 'Content answer',
     })
 
-    expect(answer.content).toEqual('Content answer')
-    expect(inMemoryAnswersRepository.items[0].id).toBe(answer.id)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answer.content).toEqual('Content answer')
+    expect(inMemoryAnswersRepository.items[0].id).toBe(result.value?.answer.id)
   })
 })

@@ -2,6 +2,8 @@ import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questio
 import { EditQuestionUseCase } from './edit-question'
 import { makeQuestion } from 'test/factories/make-question'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { NotAllowedError } from './errors/not-allowed-error'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
 
 let inMemoryQuestionRepository: InMemoryQuestionsRepository
 let usecase: EditQuestionUseCase
@@ -36,14 +38,16 @@ describe('Edit Question', () => {
   })
 
   it('should be return an error if the question does not exist', async () => {
-    await expect(() =>
-      usecase.execute({
-        authorId: 'author-id',
-        questionId: 'non-existent-id',
-        title: "New question",
-        content: "New question content"
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await usecase.execute({
+      authorId: 'author-id',
+      questionId: 'non-existent-id',
+      title: "New question",
+      content: "New question content"
+    })
+
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the author that is trying to edit the question is not the author of the question', async () => {
@@ -58,21 +62,15 @@ describe('Edit Question', () => {
 
     await inMemoryQuestionRepository.create(newQuestion)
 
-    async function executeUseCase() {
-      try {
-        await usecase.execute({
-          authorId: 'another-author-id',
-          questionId: questionId.toString(),
-          title: "New question",
-          content: "New question content"
-        })
-      } catch (error) {
-        return error
-      }
-    }
+    const result = await usecase.execute({
+      authorId: 'another-author-id',
+      questionId: questionId.toString(),
+      title: "New question",
+      content: "New question content"
+    })
 
-    const error = (await executeUseCase()) as Error
-    expect(error).toBeInstanceOf(Error)
-    expect(error.message).toBe('You are not the author of this question')
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

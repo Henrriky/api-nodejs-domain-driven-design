@@ -2,6 +2,8 @@ import { InMemoryQuestionCommentsRepository } from 'test/repositories/in-memory-
 import { DeleteQuestionCommentUseCase } from './delete-question-comment'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { makeQuestionComment } from 'test/factories/make-question-comment'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 let inMemoryQuestionCommentRepository: InMemoryQuestionCommentsRepository
 let usecase: DeleteQuestionCommentUseCase
@@ -31,16 +33,18 @@ describe('Delete QuestionComment', () => {
   })
 
   it('should be return an error if the question comment does not exist', async () => {
-    await expect(() =>
-      usecase.execute({
-        authorId: 'author-id',
-        questionCommentId: 'non-existent-id',
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await usecase.execute({
+      authorId: 'author-id',
+      questionCommentId: 'non-existent-id',
+    })
+
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the author that is trying to delete the question comment is not the author of the question comment', async () => {
-    
+
     const newQuestionComment = makeQuestionComment(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -49,19 +53,12 @@ describe('Delete QuestionComment', () => {
     )
     await inMemoryQuestionCommentRepository.create(newQuestionComment)
 
-    async function executeUseCase() {
-      try {
-        await usecase.execute({
-          authorId: 'another-author-id',
-          questionCommentId: newQuestionComment.id.toString(),
-        })
-      } catch (error) {
-        return error
-      }
-    }
+    const result = await usecase.execute({
+      authorId: 'another-author-id',
+      questionCommentId: newQuestionComment.id.toString(),
+    })
 
-    const error = (await executeUseCase()) as Error
-    expect(error).toBeInstanceOf(Error)
-    expect(error.message).toBe('You are not the author of this comment')
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })

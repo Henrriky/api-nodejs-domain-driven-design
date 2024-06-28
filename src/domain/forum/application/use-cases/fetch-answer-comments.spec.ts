@@ -22,14 +22,15 @@ describe('Fetch Answer Comments', () => {
       answerId: new UniqueEntityID('answer-1')
     }))
 
-    const { answerComments } = await usecase.execute(
+    const result = await usecase.execute(
       {
         answerId: 'answer-1',
         page: 1
       }
     )
-    expect(answerComments).toHaveLength(2)
-    expect(answerComments).toEqual([
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answerComments).toHaveLength(2)
+    expect(result.value?.answerComments).toEqual([
       expect.objectContaining({
         answerId: new UniqueEntityID('answer-1')
       }),
@@ -41,14 +42,15 @@ describe('Fetch Answer Comments', () => {
 
   it('should not be able to fetch answer comments when no answer is created', async () => {
 
-    const { answerComments } = await usecase.execute(
+    const result = await usecase.execute(
       {
         answerId: 'answer-1',
         page: 1
       }
     )
 
-    expect(answerComments).toHaveLength(0)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answerComments).toHaveLength(0)
   })
 
   it('should be able to fetch paginated answer comments', async () => {
@@ -62,11 +64,12 @@ describe('Fetch Answer Comments', () => {
       )
     }
 
-    const { answerComments } = await usecase.execute({
+    const result = await usecase.execute({
       answerId: 'answer-1',
       page: 3
     })
 
-    expect(answerComments).toHaveLength(2)
+    expect(result.isSuccess()).toBe(true)
+    expect(result.value?.answerComments).toHaveLength(2)
   })
 })

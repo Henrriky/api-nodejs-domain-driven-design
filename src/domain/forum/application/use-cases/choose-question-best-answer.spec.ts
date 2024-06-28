@@ -4,6 +4,8 @@ import { makeAnswer } from 'test/factories/make-answer'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
+import { ResourceNotFoundError } from './errors/resource-not-found-error'
+import { NotAllowedError } from './errors/not-allowed-error'
 
 let inMemoryAnswerRepository: InMemoryAnswersRepository
 let inMemoryQuestionRepository: InMemoryQuestionsRepository
@@ -51,12 +53,13 @@ describe('Choose Question Best Answer', () => {
 
   it('should be return an error if the answer does not exist', async () => {
 
-    await expect(() =>
-      usecase.execute({
-        authorId: 'author-id',
-        answerId: 'non-existent-id',
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await usecase.execute({
+      authorId: 'author-id',
+      answerId: 'non-existent-id',
+    })
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the question does not exist', async () => {
@@ -70,12 +73,13 @@ describe('Choose Question Best Answer', () => {
 
     await inMemoryAnswerRepository.create(newAnswer)
 
-    await expect(() =>
-      usecase.execute({
-        authorId: 'author-id',
-        answerId: newAnswer.id.toValue(),
-      }),
-    ).rejects.toBeInstanceOf(Error)
+    const result = await usecase.execute({
+      authorId: 'author-id',
+      answerId: newAnswer.id.toValue(),
+    })
+
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the author that is trying to choose question best answer is not the author of the question', async () => {
@@ -99,20 +103,13 @@ describe('Choose Question Best Answer', () => {
     )
 
     await inMemoryAnswerRepository.create(newAnswer)
+    
+    const result = await usecase.execute({
+      authorId: 'another-author-id',
+      answerId: answerId.toString(),
+    })
 
-    async function executeUseCase() {
-      try {
-        await usecase.execute({
-          authorId: 'another-author-id',
-          answerId: answerId.toString(),
-        })
-      } catch (error) {
-        return error
-      }
-    }
-
-    const error = (await executeUseCase()) as Error
-    expect(error).toBeInstanceOf(Error)
-    expect(error.message).toBe('You are not the author of this question')
+    expect(result.isFailure()).toBe(true)
+    expect(result.value).toBeInstanceOf(NotAllowedError)
   })
 })
