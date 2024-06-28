@@ -631,3 +631,4 @@ describe('Create Question', () => {
 - [X] Criar comentário na resposta
 - [X] Deletar comentário da pergunta
 - [X] Deletar comentário da resposta
+- [ ] Listar comentários da pergunta
