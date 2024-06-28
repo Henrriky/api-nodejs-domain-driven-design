@@ -627,7 +627,7 @@ describe('Create Question', () => {
 
 # Casos de uso de Comentários
 
-- [ ] Criar comentário na pergunta
-- [ ] Criar comentário na resposta
-- [ ] Deletar comentário da pergunta
-- [ ] Deletar comentário da resposta
+- [X] Criar comentário na pergunta
+- [X] Criar comentário na resposta
+- [X] Deletar comentário da pergunta
+- [X] Deletar comentário da resposta
