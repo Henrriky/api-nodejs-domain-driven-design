@@ -631,4 +631,117 @@ describe('Create Question', () => {
 - [X] Criar comentário na resposta
 - [X] Deletar comentário da pergunta
 - [X] Deletar comentário da resposta
-- [ ] Listar comentários da pergunta
+- [X] Listar comentários da pergunta
+
+# Problema com Error Handling
+
+- https://khalilstemmler.com/articles/enterprise-typescript-nodejs/handling-errors-result-class/
+- https://khalilstemmler.com/articles/enterprise-typescript-nodejs/functional-error-handling/
+- https://blog.bitsrc.io/a-clean-and-adaptive-nodejs-architecture-with-typescript-b144c1735447
+- Devemos padronizar a forma de tratativa de erro na aplicação
+
+## Functional Error Handling
+
+- https://gigobyte.github.io/purify/ -> Biblioteca de programação funcional
+- Em linguagens funcionais, é comum a utilização de tuplas para representar se a resposta é de sucesso (extrair valor) ou erro (extrair razão)
+- Para isso vamos criar um arquivo `either.ts` em `core/either.ts`
+
+### Testando classes de erro
+
+- Escrever testes unitários para o either.ts
+```ts
+import { Either, failure, success } from "./either"
+
+function doSomething(shouldSuccess: boolean): Either<string, number> {
+  if(shouldSuccess) {
+    return success(10)
+  } else {
+    return failure('failure')
+  }
+}
+
+test('success result', () => {
+
+  const result = doSomething(true)
+
+  if (result.isSuccess()) {
+    console.log(result.value)
+  }
+
+  expect(result.isSuccess()).toBe(true)
+  expect(result.isFailure()).toBe(false)
+})
+
+test('failure result', () => {
+
+  const result = doSomething(false)
+
+  expect(result.isSuccess()).toBe(false)
+  expect(result.isFailure()).toBe(true)
+})
+```
+- Além disso, precisamos modificar o `either.ts` para que ele tenha dois método `isSuccess` e `isFailure`, para que seja possível identificar qual é o resultado de uma operação. Outra coisa que vamos fazer é forçar a tipagem desses dois métodos para que ele identifique que ela é da respectiva classe com um valor definido.
+```ts
+// Error
+export class Failure<L, R> {
+  readonly value: L
+
+  constructor(value: L) {
+    this.value = value
+  }
+
+  isSuccess(): this is Success<L, R> {
+    return false
+  }
+
+  isFailure(): this is Failure<L, R> {
+    return true
+  }
+}
+
+// Success
+export class Success<L, R> {
+  readonly value: R
+
+  constructor(value: R) {
+    this.value = value
+  }
+
+  isSuccess(): this is Success<L, R> { //Indicação para o Typescript que estamos assumindo que o retorno da variável value será do tipo Right
+    return true
+  }
+
+  isFailure(): this is Failure<L, R> {
+    return false
+  }
+}
+
+export type Either<L, R> = Failure<L, R> | Success<L, R>
+
+export const failure = <L, R>(value: L): Either<L, R> => {
+  return new Failure(value)
+}
+
+export const success = <L, R>(value: R): Either<L, R> => {
+  return new Success(value)
+}
+```
+
+# Criação de erros genéricos
+
+- Criação de uma pasta `errors`
+  - Dentro dessa pasta vamos criar erros que serão disparados na lógica de negócio e que vão estender de `UseCaseError`, que contém uma mensagem:
+    ```ts
+    import { UseCaseError } from "@/core/error/use-case-error";
+
+    export class ResourceNotFoundError extends Error implements UseCaseError {
+      constructor() {
+        super('Resource not found')
+      }
+    }
+    export class NotAllowedError extends Error implements UseCaseError {
+      constructor() {
+        super('Not allowed')
+      }
+    }
+    ```
