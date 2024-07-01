@@ -745,3 +745,400 @@ export const success = <L, R>(value: R): Either<L, R> => {
       }
     }
     ```
+
+# AggregateRoot & WatchedList
+
+Anotar momento que pegou pressão
+
+- Aggregate
+  - Entidades que dependem de outras entidades para existir.
+  - Conjunto de entidades que são manipuladas ao mesmo tempo, e elas juntas compoem algo maior que é o Aggregate
+  - Exemplo:
+    - Order (Entidade principal)
+      - As outras entidades abaixo dependem exclusivamente da existência da entidade principal
+      - Os agregados são entidades que sempre trabalham juntas, nunca sozinhas
+        - Exemplo: Order e OrderItem são salvos juntos no banco de dados, configurando um agregado
+      - OrderItem[]
+      - Shipping
+- WatchedList
+  - É uma classe ou pattern que permite que a gente tenha mais informações de itens contidos dentro de uma lista.
+  - Isso quer dizer que cada item dentro de um array também tem informações se aquilo é algo novo, algo que foi removido ou algo que foi atualizado.
+  - Exemplo:
+    - Question -> Attachment[] (Aggregate de Question + Attachment)
+    - Criação:
+      - Título
+      - Conteúdo
+      - Anexos (3)
+    - Edição
+      - Título 
+      - Conteúdo
+      - Podemos fazer a seguinte operação em cima dos Anexos da Pergunta:
+        - Adicionar um novo anexo (CREATE)
+        - Remover o segundo anexo que tinha sido criado previamente (DELETE)
+        - Editar um anexo existente (UPDATE)
+        - Logo, o trabalho de manipular listas dentro de um agregado começa a se tornar mais complexo, pois podemos adicionar mais informações naquela lista ou editar/remover informações existentes.
+        - Não podemos simplesmente apagar todos os anexos que haviam salvos previamente no momento da criação e recriar com base nos que vieram, devemos atualizar apenas os que foram alterados
+
+## AggregateRoot
+
+- CQRS
+- Criar um `AggregateRoot`
+- Alterar herança de Question para AggregateRoot
+- Agora vamos começar a ter relacionamentos que vão ser manipulados ao mesmo tempo que a Question for manipulada, como por exemplo os `Anexos` da pergunta e as `Tags`. Isso quer dizer que todas essas entidades vão ser tratadas juntas
+- AggregatesRoot não são um simples relacionamento, eles são um conjunto de entidades que são mutadas de forma conjunta. Por exemplo, Question e QuestionComments não são um AggregateRoot, pois o comentário só é feito depois da criação da Question, e a edição de um não influencia a de outro diretamente.
+
+# Entidades de Anexo
+
+- Tanto as `Question`, quanto as `Answers` teremos `Attachements`
+- A melhor abordagem é criar uma classe separada para `Attachements`
+  - Podemos trabalhar com polimorfismo na orientação a objeto para representar o `Attachement`, que é uma forma de uma classe se comportar de duas formas, usando apenas o type.
+  - Vamos criar duas entidades "Pivo", que é `Answer-Attachement` e `Question-Attachement`
+  ```ts
+  export interface AttachementProps {
+    title: string
+    link: string
+  }
+
+  export class Attachement extends Entity<AttachementProps> {
+    
+    public get title() {
+      return this.props.title
+    }
+
+    public get link() {
+      return this.props.link
+    }
+  }
+
+  interface QuestionAttachementProps {
+    questionId: UniqueEntityID
+    attachmentId: UniqueEntityID
+  }
+
+
+  export class QuestionAttachement extends Entity<QuestionAttachementProps> {
+    
+    public get questionId() {
+      return this.props.questionId
+    }
+
+    public get attachementId() {
+      return this.props.questionId
+    }
+
+
+    static create(
+      props: QuestionAttachementProps,
+      id?: UniqueEntityID,
+    ) {
+      const questionAttachement = new QuestionAttachement(props, id)
+
+      return questionAttachement
+    }
+  }  
+  ```
+
+## Criando pergunta com anexos
+
+- Vamos modelar `Question` para ter um `QuestionAttachements`
+  ```ts
+  export interface QuestionProps {
+    authorId: UniqueEntityID
+    bestAnswerId?: UniqueEntityID
+    attachments: QuestionAttachment[]
+    title: string
+    content: string
+    slug: Slug
+    createdAt: Date
+    updatedAt?: Date
+  }
+
+  export class Question extends AggregateRoot<QuestionProps> {
+
+    set attachments(attachments: QuestionAttachment[]) {
+      this.props.attachments = attachments
+    }
+
+    static create(
+      props: Optional<QuestionProps, 'createdAt' | 'slug' | 'attachments'>,
+      id?: UniqueEntityID,
+    ) {
+      const question = new Question(
+        {
+          ...props,
+          slug: props.slug ?? Slug.createFromText(props.title),
+          attachments: props.attachments ?? [],
+          createdAt: props.createdAt ?? new Date(),
+        },
+        id,
+      )
+
+      return question
+    }
+  }
+  ```
+- Agora precisamos alterar nosso caso de uso `Create Question`
+  - Os attachements são "multipart/form-data", que não é JSON e sim um formato binário.
+  - O ideal é separar a criação dos attachements da questão, e depois receber os ids dos attachements para realizar a relação entre Question e Attachements.
+  ```ts
+  interface CreateQuestionUseCaseInput {
+    authorId: string
+    title: string
+    content: string
+    attachmentsIds: string[]
+  }
+
+  type CreateQuestionUseCaseOutput = Either<
+    null, 
+    {
+      question: Question
+    }
+  >
+
+  export class CreateQuestionUseCase {
+    constructor(private questionsRepository: QuestionsRepository) {}
+
+    async execute({
+      authorId,
+      title,
+      content,
+      attachmentsIds,
+    }: CreateQuestionUseCaseInput): Promise<CreateQuestionUseCaseOutput> {
+      const question = Question.create({
+        authorId: new UniqueEntityID(authorId),
+        title,
+        content,
+      })
+
+      const questionAttachments = attachmentsIds.map(attachmentId => {
+        return QuestionAttachment.create({
+          attachmentId: new UniqueEntityID(attachmentId),
+          questionId: question.id
+        })
+      })
+
+      question.attachments = questionAttachments
+
+      await this.questionsRepository.create(question)
+
+      return success({
+        question,
+      })
+    }
+  }
+
+  
+  ```
+  - Outra questão é que, para salvar os `Attachments`, ao salvar eles seguindo o conceito de `AggregateRoot`, o ideal é que o `QuestionRepository`, que é o repositorio do Agregado principal, deve criar e salvar automáticamente todos os `SubAggregates`. Ou seja, quando salvarmos uma `Question` no banco de dados, o próprio `QuestionRepository` tem que lidar com a parte de `create, delete and save` do banco de dados.
+  - No primeiro momento, como temos a entidade `Question` como um todo, ela já possui os `Attachments`, mas quando tivermos um Banco de Dados, será necessário salvar essas informações no banco de forma separada.
+
+# Pattern - WatchedList
+
+- Criação de uma classe abstrata:
+```ts
+import { WatchedList } from "./watched-list";
+
+
+class NumberWatchedList extends WatchedList<number> {
+
+  compareItems(a: number, b: number): boolean {
+    return a === b
+  }
+}
+
+describe('watched list', () => {
+
+  it('should be able to create a watched list with initial items', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+
+    expect(list.currentItems).toHaveLength(3)
+  })
+
+  it('should be able to add new items to the list', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+  
+    list.add(4)
+    
+    expect(list.currentItems).toHaveLength(4)
+    expect(list.getNewItems()).toEqual([4])
+  })
+
+  it('should be able to remove items from the list', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+  
+    list.remove(2)
+    
+    expect(list.currentItems).toHaveLength(2)
+    expect(list.getRemovedItems()).toEqual([2])
+  })
+
+  it('should be able to add an item even if it was removed before', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+  
+    list.remove(2)
+    list.add(2)
+    
+    expect(list.currentItems).toHaveLength(3)
+    expect(list.getRemovedItems()).toEqual([])
+    expect(list.getNewItems()).toEqual([])
+  })
+
+  it('should be able to remove an item even if it was add before', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+  
+    list.add(4)
+    list.remove(4)
+    
+    expect(list.currentItems).toHaveLength(3)
+    expect(list.getRemovedItems()).toEqual([])
+    expect(list.getNewItems()).toEqual([])
+  })
+
+  it('should be able to update watched list items', () => {
+    const list = new NumberWatchedList([1, 2, 3])
+    
+    list.update([1, 3, 5])
+    
+    expect(list.getRemovedItems()).toEqual([2])
+    expect(list.getNewItems()).toEqual([5])
+    expect(list.currentItems).toHaveLength(3)
+    expect(list.currentItems).toEqual([1, 3, 5])
+  })
+})
+```
+- Agora precisamos criar nossa `QuestionAttachmentList` para poder armazenar apenas os `attachmentsIds` que de fato foram adicionados ou que devem ser removidos.
+```ts
+import { WatchedList } from "@/core/entities/watched-list";
+import { QuestionAttachment } from "./Question-Attachment";
+
+export class QuestionAttachmentList extends WatchedList<QuestionAttachment> {
+  compareItems(a: QuestionAttachment, b: QuestionAttachment): boolean {
+    return a.attachmentId === b.attachmentId
+  }
+}
+```
+
+# Alterando casos de uso
+
+- Agora é necessário alterar os casos de uso que vão receber os `Attachments`
+
+## Alterando caso de uso Criar Pergunta
+- Primeiro vamos atualizar o `Question` para que ele tenha uma referência para `QuestionAttachmentList` e alterar o Input do `Create Question Use Case`:
+```ts
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Question } from '../../enterprise/entities/Question'
+import { QuestionsRepository } from '../repositories/questions-repository'
+import { Either, success } from '@/core/either'
+import { QuestionAttachment } from '../../enterprise/entities/Question-Attachment'
+import { QuestionAttachmentList } from '../../enterprise/entities/Question-Attachment-List'
+
+interface CreateQuestionUseCaseInput {
+  authorId: string
+  title: string
+  content: string
+  attachmentsIds: string[]
+}
+
+type CreateQuestionUseCaseOutput = Either<
+  null, 
+  {
+    question: Question
+  }
+>
+
+export class CreateQuestionUseCase {
+  constructor(private questionsRepository: QuestionsRepository) {}
+
+  async execute({
+    authorId,
+    title,
+    content,
+    attachmentsIds,
+  }: CreateQuestionUseCaseInput): Promise<CreateQuestionUseCaseOutput> {
+    const question = Question.create({
+      authorId: new UniqueEntityID(authorId),
+      title,
+      content,
+    })
+
+    const questionAttachments = attachmentsIds.map(attachmentId => {
+      return QuestionAttachment.create({
+        attachmentId: new UniqueEntityID(attachmentId),
+        questionId: question.id
+      })
+    })
+
+    question.attachments = new QuestionAttachmentList(questionAttachments)
+
+    await this.questionsRepository.create(question)
+
+    return success({
+      question,
+    })
+  }
+}
+```
+
+## Alterando caso de uso Editar Pergunta
+
+- Para realizar a operação de `Edit Question` agora precisamos criar um `Question Attachments Repository`, pois nem sempre teremos a referência da lista de attachments quando buscarmos uma `Question`, o que pode causar um comportamento inesperado e também uma sobrecarga de dados que forem resgatados.
+- Para isso, vamos altera a Porta (Input) do nosso caso de uso para suportar o atributo `attachmentIds` e também um `Question Attachments Repository`, para que a gente possa realizar a busca de quais os attachments que estão relacionados com a nossa pergunta
+```ts
+interface EditQuestionUseCaseInput {
+  authorId: string
+  questionId: string
+  title: string
+  content: string
+  attachmentsIds: string[]
+}
+
+type EditQuestionUseCaseOutput = Either<
+  ResourceNotFoundError | NotAllowedError, 
+  {
+  question: Question
+  }
+>
+
+export class EditQuestionUseCase {
+  constructor(
+    private questionsRepository: QuestionsRepository,
+    private questionAttachmentsRepository: QuestionAttachmentsRepository
+  ) {}
+
+  async execute({
+    authorId,
+    questionId,
+    title,
+    content,
+    attachmentsIds
+  }: EditQuestionUseCaseInput): Promise<EditQuestionUseCaseOutput> {
+    const question = await this.questionsRepository.findById(questionId)
+
+    if (!question) {
+      return failure(new ResourceNotFoundError('Question not found'))
+    }
+
+    if (question.authorId.toString() !== authorId) {
+      return failure(new NotAllowedError('You are not the author of this question'))
+    }
+
+    const currentQuestionAttachments = await this.questionAttachmentsRepository.findManyByQuestionId(questionId)
+    question.attachments = new QuestionAttachmentList(currentQuestionAttachments)
+
+
+    const questionAttachments = attachmentsIds.map(attachmentId => {
+      return QuestionAttachment.create({
+        questionId: question.id,
+        attachmentId: new UniqueEntityID(attachmentId)
+      })
+    })
+
+    question.attachments.update(questionAttachments)
+    question.title = title
+    question.content = content
+
+    await this.questionsRepository.save(question)
+    return success({ question })
+  }
+}
+```
