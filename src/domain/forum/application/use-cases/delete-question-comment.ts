@@ -8,7 +8,10 @@ interface DeleteQuestionCommentUseCaseInput {
   questionCommentId: string
 }
 
-type DeleteQuestionCommentUseCaseOutput = Either<ResourceNotFoundError | NotAllowedError, {}>
+type DeleteQuestionCommentUseCaseOutput = Either<
+  ResourceNotFoundError | NotAllowedError,
+  null
+>
 
 export class DeleteQuestionCommentUseCase {
   constructor(private questionCommentsRepository: QuestionCommentsRepository) {}
@@ -17,17 +20,20 @@ export class DeleteQuestionCommentUseCase {
     authorId,
     questionCommentId,
   }: DeleteQuestionCommentUseCaseInput): Promise<DeleteQuestionCommentUseCaseOutput> {
-    const questionComment = await this.questionCommentsRepository.findById(questionCommentId)
+    const questionComment =
+      await this.questionCommentsRepository.findById(questionCommentId)
 
     if (!questionComment) {
       return failure(new ResourceNotFoundError('Question Comment not found'))
     }
 
     if (questionComment.authorId.toString() !== authorId) {
-      return failure(new NotAllowedError('You are not the author of this comment'))
+      return failure(
+        new NotAllowedError('You are not the author of this comment'),
+      )
     }
 
     await this.questionCommentsRepository.delete(questionComment)
-    return success({})
+    return success(null)
   }
 }

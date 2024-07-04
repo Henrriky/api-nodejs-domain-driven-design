@@ -34,7 +34,6 @@ describe('Delete Answer', () => {
   })
 
   it('should be return an error if the answer does not exist', async () => {
-
     const result = await usecase.execute({
       authorId: 'author-id',
       answerId: 'non-existent-id',

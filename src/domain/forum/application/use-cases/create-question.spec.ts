@@ -17,16 +17,22 @@ describe('Create Question', () => {
       authorId: '1',
       title: 'New question',
       content: 'Content question',
-      attachmentsIds: ['1', '2']
+      attachmentsIds: ['1', '2'],
     })
 
     expect(result.isSuccess()).toBe(true)
     expect(result.value?.question.id).toBeTruthy()
-    expect(inMemoryQuestionRepository.items[0].id).toBe(result.value?.question.id)
-    expect(inMemoryQuestionRepository.items[0].attachments.currentItems).toHaveLength(2)
-    expect(inMemoryQuestionRepository.items[0].attachments.currentItems).toEqual([
+    expect(inMemoryQuestionRepository.items[0].id).toBe(
+      result.value?.question.id,
+    )
+    expect(
+      inMemoryQuestionRepository.items[0].attachments.currentItems,
+    ).toHaveLength(2)
+    expect(
+      inMemoryQuestionRepository.items[0].attachments.currentItems,
+    ).toEqual([
       expect.objectContaining({ attachmentId: new UniqueEntityID('1') }),
-      expect.objectContaining({ attachmentId: new UniqueEntityID('2') })
+      expect.objectContaining({ attachmentId: new UniqueEntityID('2') }),
     ])
   })
 })

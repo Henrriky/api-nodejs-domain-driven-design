@@ -9,7 +9,7 @@ interface AnswerQuestionUseCaseInput {
   content: string
 }
 
-type AnswerQuestionUseCaseOuput = Either<null, { answer: Answer }> 
+type AnswerQuestionUseCaseOuput = Either<null, { answer: Answer }>
 
 export class AnswerQuestionUseCase {
   constructor(private answerRepository: AnswersRepository) {}

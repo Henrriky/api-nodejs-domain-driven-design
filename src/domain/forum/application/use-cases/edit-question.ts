@@ -17,16 +17,16 @@ interface EditQuestionUseCaseInput {
 }
 
 type EditQuestionUseCaseOutput = Either<
-  ResourceNotFoundError | NotAllowedError, 
+  ResourceNotFoundError | NotAllowedError,
   {
-  question: Question
+    question: Question
   }
 >
 
 export class EditQuestionUseCase {
   constructor(
     private questionsRepository: QuestionsRepository,
-    private questionAttachmentsRepository: QuestionAttachmentsRepository
+    private questionAttachmentsRepository: QuestionAttachmentsRepository,
   ) {}
 
   async execute({
@@ -34,7 +34,7 @@ export class EditQuestionUseCase {
     questionId,
     title,
     content,
-    attachmentsIds
+    attachmentsIds,
   }: EditQuestionUseCaseInput): Promise<EditQuestionUseCaseOutput> {
     const question = await this.questionsRepository.findById(questionId)
 
@@ -43,16 +43,21 @@ export class EditQuestionUseCase {
     }
 
     if (question.authorId.toString() !== authorId) {
-      return failure(new NotAllowedError('You are not the author of this question'))
+      return failure(
+        new NotAllowedError('You are not the author of this question'),
+      )
     }
 
-    const currentQuestionAttachments = await this.questionAttachmentsRepository.findManyByQuestionId(questionId)
-    const questionAttachmentList = new QuestionAttachmentList(currentQuestionAttachments)
+    const currentQuestionAttachments =
+      await this.questionAttachmentsRepository.findManyByQuestionId(questionId)
+    const questionAttachmentList = new QuestionAttachmentList(
+      currentQuestionAttachments,
+    )
 
-    const questionAttachments = attachmentsIds.map(attachmentId => {
+    const questionAttachments = attachmentsIds.map((attachmentId) => {
       return QuestionAttachment.create({
         questionId: question.id,
-        attachmentId: new UniqueEntityID(attachmentId)
+        attachmentId: new UniqueEntityID(attachmentId),
       })
     })
 

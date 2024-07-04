@@ -8,7 +8,10 @@ interface DeleteAnswerUseCaseInput {
   answerId: string
 }
 
-type DeleteAnswerUseCaseOutput = Either<ResourceNotFoundError | NotAllowedError, {}>
+type DeleteAnswerUseCaseOutput = Either<
+  ResourceNotFoundError | NotAllowedError,
+  null
+>
 
 export class DeleteAnswerUseCase {
   constructor(private answersRepository: AnswersRepository) {}
@@ -24,10 +27,12 @@ export class DeleteAnswerUseCase {
     }
 
     if (answer.authorId.toString() !== authorId) {
-      return failure(new NotAllowedError('You are not the author of this answer'))
+      return failure(
+        new NotAllowedError('You are not the author of this answer'),
+      )
     }
 
     await this.answersRepository.delete(answer)
-    return success({})
+    return success(null)
   }
 }

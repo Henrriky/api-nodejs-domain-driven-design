@@ -20,7 +20,6 @@ describe('Comment On Answer', () => {
   })
 
   it('should be able to comment on answer', async () => {
-
     const newAnswer = makeAnswer(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -32,18 +31,19 @@ describe('Comment On Answer', () => {
     await usecase.execute({
       authorId: 'author-id-comment',
       answerId: newAnswer.id.toString(),
-      content: 'Comment content'
+      content: 'Comment content',
     })
 
     expect(inMemoryAnswerCommentsRepository.items).toHaveLength(1)
-    expect(inMemoryAnswerCommentsRepository.items[0].content).toEqual('Comment content')
+    expect(inMemoryAnswerCommentsRepository.items[0].content).toEqual(
+      'Comment content',
+    )
     expect(inMemoryAnswerCommentsRepository.items[0]).toMatchObject({
-      content: 'Comment content'
+      content: 'Comment content',
     })
   })
 
   it('should be return an error if the answer does not exist', async () => {
-
     const newAnswer = makeAnswer(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -55,13 +55,13 @@ describe('Comment On Answer', () => {
     await usecase.execute({
       authorId: 'author-id-comment',
       answerId: newAnswer.id.toString(),
-      content: 'Comment content'
+      content: 'Comment content',
     })
 
     const result = await usecase.execute({
       authorId: 'author-id-comment',
       answerId: 'any-answer-id',
-      content: 'Comment content'
+      content: 'Comment content',
     })
 
     expect(result.isFailure()).toBe(true)

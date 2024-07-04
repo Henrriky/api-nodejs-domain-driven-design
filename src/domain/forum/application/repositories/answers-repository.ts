@@ -5,7 +5,7 @@ export interface AnswersRepository {
   findById(id: string): Promise<Answer | null>
   findManyByTopicId(
     questionId: string,
-    params: PaginationParams
+    params: PaginationParams,
   ): Promise<Answer[]>
   create(answer: Answer): Promise<void>
   save(answer: Answer): Promise<void>

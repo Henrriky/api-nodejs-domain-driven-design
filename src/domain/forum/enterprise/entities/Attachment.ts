@@ -1,5 +1,4 @@
-import { Entity } from "@/core/entities/entity"
-
+import { Entity } from '@/core/entities/entity'
 
 export interface AttachmentProps {
   title: string
@@ -7,7 +6,6 @@ export interface AttachmentProps {
 }
 
 export class Attachment extends Entity<AttachmentProps> {
-  
   public get title() {
     return this.props.title
   }

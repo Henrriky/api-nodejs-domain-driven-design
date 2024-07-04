@@ -8,7 +8,9 @@ export interface CommentProps {
   updatedAt?: Date
 }
 
-export abstract class Comment<Props extends CommentProps> extends Entity<Props> {
+export abstract class Comment<
+  Props extends CommentProps,
+> extends Entity<Props> {
   get authorId() {
     return this.props.authorId
   }

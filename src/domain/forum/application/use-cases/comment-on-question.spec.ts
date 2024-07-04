@@ -1,4 +1,3 @@
-import { makeAnswer } from 'test/factories/make-answer'
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository'
 import { makeQuestion } from 'test/factories/make-question'
@@ -12,7 +11,8 @@ let usecase: CommentOnQuestionCase
 
 describe('Comment On Question', () => {
   beforeEach(() => {
-    inMemoryQuestionCommentsRepository = new InMemoryQuestionCommentsRepository()
+    inMemoryQuestionCommentsRepository =
+      new InMemoryQuestionCommentsRepository()
     inMemoryQuestionRepository = new InMemoryQuestionsRepository()
     usecase = new CommentOnQuestionCase(
       inMemoryQuestionRepository,
@@ -21,7 +21,6 @@ describe('Comment On Question', () => {
   })
 
   it('should be able to comment on question', async () => {
-
     const newQuestion = makeQuestion(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -33,18 +32,19 @@ describe('Comment On Question', () => {
     await usecase.execute({
       authorId: 'author-id-comment',
       questionId: newQuestion.id.toString(),
-      content: 'Comment content'
+      content: 'Comment content',
     })
 
     expect(inMemoryQuestionCommentsRepository.items).toHaveLength(1)
-    expect(inMemoryQuestionCommentsRepository.items[0].content).toEqual('Comment content')
+    expect(inMemoryQuestionCommentsRepository.items[0].content).toEqual(
+      'Comment content',
+    )
     expect(inMemoryQuestionCommentsRepository.items[0]).toMatchObject({
-      content: 'Comment content'
+      content: 'Comment content',
     })
   })
 
   it('should be return an error if the question does not exist', async () => {
-
     const newQuestion = makeQuestion(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -56,9 +56,9 @@ describe('Comment On Question', () => {
     const result = await usecase.execute({
       authorId: 'author-id-comment',
       questionId: 'any-question-id',
-      content: 'Comment content'
+      content: 'Comment content',
     })
-    
+
     expect(result.isFailure()).toBe(true)
     expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })

@@ -8,7 +8,10 @@ interface DeleteAnswerCommentUseCaseInput {
   answerCommentId: string
 }
 
-type DeleteAnswerCommentUseCaseOutput = Either<ResourceNotFoundError | NotAllowedError, {}>
+type DeleteAnswerCommentUseCaseOutput = Either<
+  ResourceNotFoundError | NotAllowedError,
+  null
+>
 
 export class DeleteAnswerCommentUseCase {
   constructor(private answerCommentsRepository: AnswerCommentsRepository) {}
@@ -17,7 +20,8 @@ export class DeleteAnswerCommentUseCase {
     authorId,
     answerCommentId,
   }: DeleteAnswerCommentUseCaseInput): Promise<DeleteAnswerCommentUseCaseOutput> {
-    const answerComment = await this.answerCommentsRepository.findById(answerCommentId)
+    const answerComment =
+      await this.answerCommentsRepository.findById(answerCommentId)
 
     if (!answerComment) {
       return failure(new ResourceNotFoundError('Answer not found'))
@@ -28,6 +32,6 @@ export class DeleteAnswerCommentUseCase {
     }
 
     await this.answerCommentsRepository.delete(answerComment)
-    return success({})
+    return success(null)
   }
 }

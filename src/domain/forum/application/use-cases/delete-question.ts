@@ -8,7 +8,10 @@ interface DeleteQuestionUseCaseInput {
   questionId: string
 }
 
-type DeleteQuestionUseCaseOutput = Either<ResourceNotFoundError | NotAllowedError, {}>
+type DeleteQuestionUseCaseOutput = Either<
+  ResourceNotFoundError | NotAllowedError,
+  null
+>
 
 export class DeleteQuestionUseCase {
   constructor(private questionsRepository: QuestionsRepository) {}
@@ -24,10 +27,12 @@ export class DeleteQuestionUseCase {
     }
 
     if (question.authorId.toString() !== authorId) {
-      return failure(new NotAllowedError('You are not the author of this question'))
+      return failure(
+        new NotAllowedError('You are not the author of this question'),
+      )
     }
 
     await this.questionsRepository.delete(question)
-    return success({})
+    return success(null)
   }
 }

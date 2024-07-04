@@ -22,7 +22,8 @@ export class GetQuestionBySlugUseCase {
   }: GetQuestionBySlugUseCaseInput): Promise<GetQuestionBySlugUseCaseOutput> {
     const question = await this.questionsRepository.findBySlug(slug)
 
-    if (!question) return failure(new ResourceNotFoundError('Question not found'))
+    if (!question)
+      return failure(new ResourceNotFoundError('Question not found'))
 
     return success({
       question,

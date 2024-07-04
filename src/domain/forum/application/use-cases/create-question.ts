@@ -13,7 +13,7 @@ interface CreateQuestionUseCaseInput {
 }
 
 type CreateQuestionUseCaseOutput = Either<
-  null, 
+  null,
   {
     question: Question
   }
@@ -34,10 +34,10 @@ export class CreateQuestionUseCase {
       content,
     })
 
-    const questionAttachments = attachmentsIds.map(attachmentId => {
+    const questionAttachments = attachmentsIds.map((attachmentId) => {
       return QuestionAttachment.create({
         attachmentId: new UniqueEntityID(attachmentId),
-        questionId: question.id
+        questionId: question.id,
       })
     })
 

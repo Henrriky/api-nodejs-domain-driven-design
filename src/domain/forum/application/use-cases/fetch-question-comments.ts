@@ -8,7 +8,7 @@ interface FetchQuestionCommentsUseCaseInput {
 }
 
 type FetchQuestionCommentsUseCaseOutput = Either<
-  null, 
+  null,
   {
     questionComments: QuestionComment[]
   }
@@ -18,11 +18,12 @@ export class FetchQuestionCommentsUseCase {
 
   async execute({
     page,
-    questionId
+    questionId,
   }: FetchQuestionCommentsUseCaseInput): Promise<FetchQuestionCommentsUseCaseOutput> {
-    const questionComments = await this.questionCommentsRepository.findManyByTopicId(questionId, {
-      page
-    })
+    const questionComments =
+      await this.questionCommentsRepository.findManyByTopicId(questionId, {
+        page,
+      })
 
     return success({
       questionComments,

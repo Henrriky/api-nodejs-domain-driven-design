@@ -22,7 +22,6 @@ describe('Choose Question Best Answer', () => {
   })
 
   it('should be able to choose question best answer', async () => {
-
     const newQuestion = makeQuestion(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -33,7 +32,7 @@ describe('Choose Question Best Answer', () => {
     const newAnswer = makeAnswer(
       {
         authorId: new UniqueEntityID('author-id'),
-        questionId: newQuestion.id
+        questionId: newQuestion.id,
       },
       new UniqueEntityID('answer-1'),
     )
@@ -47,12 +46,11 @@ describe('Choose Question Best Answer', () => {
     })
 
     expect(inMemoryQuestionRepository.items[0]).toMatchObject({
-      bestAnswerId: newAnswer.id
+      bestAnswerId: newAnswer.id,
     })
   })
 
   it('should be return an error if the answer does not exist', async () => {
-
     const result = await usecase.execute({
       authorId: 'author-id',
       answerId: 'non-existent-id',
@@ -63,7 +61,6 @@ describe('Choose Question Best Answer', () => {
   })
 
   it('should be return an error if the question does not exist', async () => {
-
     const newAnswer = makeAnswer(
       {
         authorId: new UniqueEntityID('author-id'),
@@ -83,12 +80,9 @@ describe('Choose Question Best Answer', () => {
   })
 
   it('should be return an error if the author that is trying to choose question best answer is not the author of the question', async () => {
-
-    const newQuestion = makeQuestion(
-      {
-        authorId: new UniqueEntityID('author-id')
-      },
-    )
+    const newQuestion = makeQuestion({
+      authorId: new UniqueEntityID('author-id'),
+    })
 
     await inMemoryQuestionRepository.create(newQuestion)
 
@@ -97,13 +91,13 @@ describe('Choose Question Best Answer', () => {
     const newAnswer = makeAnswer(
       {
         authorId: new UniqueEntityID('author-id'),
-        questionId: newQuestion.id
+        questionId: newQuestion.id,
       },
       answerId,
     )
 
     await inMemoryAnswerRepository.create(newAnswer)
-    
+
     const result = await usecase.execute({
       authorId: 'another-author-id',
       answerId: answerId.toString(),

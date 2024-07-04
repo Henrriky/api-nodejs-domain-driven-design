@@ -11,7 +11,9 @@ let usecase: DeleteQuestionCommentUseCase
 describe('Delete QuestionComment', () => {
   beforeEach(() => {
     inMemoryQuestionCommentRepository = new InMemoryQuestionCommentsRepository()
-    usecase = new DeleteQuestionCommentUseCase(inMemoryQuestionCommentRepository)
+    usecase = new DeleteQuestionCommentUseCase(
+      inMemoryQuestionCommentRepository,
+    )
   })
 
   it('should be able to delete a question comment', async () => {
@@ -38,13 +40,11 @@ describe('Delete QuestionComment', () => {
       questionCommentId: 'non-existent-id',
     })
 
-
     expect(result.isFailure()).toBe(true)
     expect(result.value).toBeInstanceOf(ResourceNotFoundError)
   })
 
   it('should be return an error if the author that is trying to delete the question comment is not the author of the question comment', async () => {
-
     const newQuestionComment = makeQuestionComment(
       {
         authorId: new UniqueEntityID('author-id'),

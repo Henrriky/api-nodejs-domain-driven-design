@@ -11,9 +11,9 @@ interface EditAnswerUseCaseInput {
 }
 
 type EditAnswerUseCaseOutput = Either<
-  ResourceNotFoundError | NotAllowedError, 
+  ResourceNotFoundError | NotAllowedError,
   {
-  answer: Answer
+    answer: Answer
   }
 >
 
@@ -32,11 +32,12 @@ export class EditAnswerUseCase {
     }
 
     if (answer.authorId.toString() !== authorId) {
-      return failure(new NotAllowedError('You are not the author of this answer'))
+      return failure(
+        new NotAllowedError('You are not the author of this answer'),
+      )
     }
 
     answer.content = content
-
 
     await this.answersRepository.save(answer)
     return success({ answer })

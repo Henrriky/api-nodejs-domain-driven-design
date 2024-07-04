@@ -43,7 +43,6 @@ describe('Delete AnswerComment', () => {
   })
 
   it('should be return an error if the author that is trying to delete the answer comment is not the author of the answer comment', async () => {
-
     const newAnswerComment = makeAnswerComment(
       {
         authorId: new UniqueEntityID('author-id'),

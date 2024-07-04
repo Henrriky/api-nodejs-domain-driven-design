@@ -14,10 +14,11 @@ let usecase: EditQuestionUseCase
 describe('Edit Question', () => {
   beforeEach(() => {
     inMemoryQuestionRepository = new InMemoryQuestionsRepository()
-    inMemoryQuestionAttachmentsRepository = new InMemoryQuestionAttachmentsRepository()
+    inMemoryQuestionAttachmentsRepository =
+      new InMemoryQuestionAttachmentsRepository()
     usecase = new EditQuestionUseCase(
       inMemoryQuestionRepository,
-      inMemoryQuestionAttachmentsRepository
+      inMemoryQuestionAttachmentsRepository,
     )
   })
 
@@ -34,30 +35,34 @@ describe('Edit Question', () => {
     inMemoryQuestionAttachmentsRepository.items.push(
       makeQuestionAttachment({
         questionId: newQuestion.id,
-        attachmentId: new UniqueEntityID('1')
+        attachmentId: new UniqueEntityID('1'),
       }),
       makeQuestionAttachment({
         questionId: newQuestion.id,
-        attachmentId: new UniqueEntityID('2')
-      })
+        attachmentId: new UniqueEntityID('2'),
+      }),
     )
 
     await usecase.execute({
       questionId: newQuestion.id.toValue(),
       authorId: newQuestion.authorId.toValue(),
-      title: "New question",
-      content: "New question content",
-      attachmentsIds: ['1', '3']
+      title: 'New question',
+      content: 'New question content',
+      attachmentsIds: ['1', '3'],
     })
 
     expect(inMemoryQuestionRepository.items[0]).toMatchObject({
-      title: "New question",
-      content: "New question content"
+      title: 'New question',
+      content: 'New question content',
     })
-    expect(inMemoryQuestionRepository.items[0].attachments.currentItems).toHaveLength(2)
-    expect(inMemoryQuestionRepository.items[0].attachments.currentItems).toEqual([
+    expect(
+      inMemoryQuestionRepository.items[0].attachments.currentItems,
+    ).toHaveLength(2)
+    expect(
+      inMemoryQuestionRepository.items[0].attachments.currentItems,
+    ).toEqual([
       expect.objectContaining({ attachmentId: new UniqueEntityID('1') }),
-      expect.objectContaining({ attachmentId: new UniqueEntityID('3') })
+      expect.objectContaining({ attachmentId: new UniqueEntityID('3') }),
     ])
   })
 
@@ -65,11 +70,10 @@ describe('Edit Question', () => {
     const result = await usecase.execute({
       authorId: 'author-id',
       questionId: 'non-existent-id',
-      title: "New question",
-      content: "New question content",
-      attachmentsIds: []
+      title: 'New question',
+      content: 'New question content',
+      attachmentsIds: [],
     })
-
 
     expect(result.isFailure()).toBe(true)
     expect(result.value).toBeInstanceOf(ResourceNotFoundError)
@@ -90,11 +94,10 @@ describe('Edit Question', () => {
     const result = await usecase.execute({
       authorId: 'another-author-id',
       questionId: questionId.toString(),
-      title: "New question",
-      content: "New question content",
-      attachmentsIds: []
+      title: 'New question',
+      content: 'New question content',
+      attachmentsIds: [],
     })
-
 
     expect(result.isFailure()).toBe(true)
     expect(result.value).toBeInstanceOf(NotAllowedError)

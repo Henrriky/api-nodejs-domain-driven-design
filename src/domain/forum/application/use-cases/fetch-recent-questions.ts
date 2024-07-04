@@ -9,7 +9,7 @@ interface FetchRecentQuestionsUseCaseInput {
 type FetchRecentQuestionsUseCaseOutput = Either<
   null,
   {
-  questions: Question[]
+    questions: Question[]
   }
 >
 
@@ -20,7 +20,7 @@ export class FetchRecentQuestionsUseCase {
     page,
   }: FetchRecentQuestionsUseCaseInput): Promise<FetchRecentQuestionsUseCaseOutput> {
     const questions = await this.questionsRepository.findManyRecent({
-      page
+      page,
     })
 
     return success({

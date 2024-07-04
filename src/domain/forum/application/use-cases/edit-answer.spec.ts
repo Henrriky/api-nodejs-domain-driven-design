@@ -27,20 +27,19 @@ describe('Edit Answer', () => {
     await usecase.execute({
       answerId: newAnswer.id.toValue(),
       authorId: newAnswer.authorId.toValue(),
-      content: "New answer content"
+      content: 'New answer content',
     })
 
     expect(inMemoryAnswerRepository.items[0]).toMatchObject({
-      content: "New answer content"
+      content: 'New answer content',
     })
   })
 
   it('should be return an error if the answer does not exist', async () => {
-
     const result = await usecase.execute({
       authorId: 'author-id',
       answerId: 'non-existent-id',
-      content: "New answer content"
+      content: 'New answer content',
     })
 
     expect(result.isFailure()).toBe(true)
@@ -62,7 +61,7 @@ describe('Edit Answer', () => {
     const result = await usecase.execute({
       authorId: 'another-author-id',
       answerId: answerId.toString(),
-      content: "New answer content"
+      content: 'New answer content',
     })
 
     expect(result.isFailure()).toBe(true)

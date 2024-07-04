@@ -9,53 +9,53 @@ let usecase: FetchQuestionCommentsUseCase
 
 describe('Fetch Question Comments', () => {
   beforeEach(() => {
-    inMemoryQuestionCommentsRepository = new InMemoryQuestionCommentsRepository()
-    usecase = new FetchQuestionCommentsUseCase(inMemoryQuestionCommentsRepository)
+    inMemoryQuestionCommentsRepository =
+      new InMemoryQuestionCommentsRepository()
+    usecase = new FetchQuestionCommentsUseCase(
+      inMemoryQuestionCommentsRepository,
+    )
   })
 
   it('should be able to fetch question comments', async () => {
-
-    await inMemoryQuestionCommentsRepository.create(makeQuestionComment({
-      questionId: new UniqueEntityID('question-1')
-    }))
-    await inMemoryQuestionCommentsRepository.create(makeQuestionComment({
-      questionId: new UniqueEntityID('question-1')
-    }))
-
-    const result = await usecase.execute(
-      {
-        questionId: 'question-1',
-        page: 1
-      }
+    await inMemoryQuestionCommentsRepository.create(
+      makeQuestionComment({
+        questionId: new UniqueEntityID('question-1'),
+      }),
     )
+    await inMemoryQuestionCommentsRepository.create(
+      makeQuestionComment({
+        questionId: new UniqueEntityID('question-1'),
+      }),
+    )
+
+    const result = await usecase.execute({
+      questionId: 'question-1',
+      page: 1,
+    })
 
     expect(result.isSuccess()).toBe(true)
     expect(result.value?.questionComments).toHaveLength(2)
     expect(result.value?.questionComments).toEqual([
       expect.objectContaining({
-        questionId: new UniqueEntityID('question-1')
+        questionId: new UniqueEntityID('question-1'),
       }),
       expect.objectContaining({
-        questionId: new UniqueEntityID('question-1')
-      })
+        questionId: new UniqueEntityID('question-1'),
+      }),
     ])
   })
 
   it('should not be able to fetch question comments when no answer is created', async () => {
-
-    const result = await usecase.execute(
-      {
-        questionId: 'question-1',
-        page: 1
-      }
-    )
+    const result = await usecase.execute({
+      questionId: 'question-1',
+      page: 1,
+    })
 
     expect(result.isSuccess()).toBe(true)
     expect(result.value?.questionComments).toHaveLength(0)
   })
 
   it('should be able to fetch paginated question comments', async () => {
-
     for (let i = 1; i <= 22; i++) {
       await inMemoryQuestionCommentsRepository.create(
         makeQuestionComment({
@@ -67,7 +67,7 @@ describe('Fetch Question Comments', () => {
 
     const result = await usecase.execute({
       questionId: 'question-1',
-      page: 3
+      page: 3,
     })
 
     expect(result.isSuccess()).toBe(true)

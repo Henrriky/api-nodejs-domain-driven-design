@@ -12,7 +12,7 @@ interface CommentOnQuestionCaseInput {
 }
 
 type CommentOnQuestionCaseOutput = Either<
-  ResourceNotFoundError, 
+  ResourceNotFoundError,
   {
     questionComment: QuestionComment
   }
@@ -21,7 +21,7 @@ type CommentOnQuestionCaseOutput = Either<
 export class CommentOnQuestionCase {
   constructor(
     private questionsRepository: QuestionsRepository,
-    private questionCommentsRepository: QuestionCommentsRepository
+    private questionCommentsRepository: QuestionCommentsRepository,
   ) {}
 
   async execute({
@@ -29,17 +29,16 @@ export class CommentOnQuestionCase {
     questionId,
     content,
   }: CommentOnQuestionCaseInput): Promise<CommentOnQuestionCaseOutput> {
-
     const question = await this.questionsRepository.findById(questionId)
 
     if (!question) {
-      return failure(new ResourceNotFoundError("Question not found."))
+      return failure(new ResourceNotFoundError('Question not found.'))
     }
 
     const questionComment = QuestionComment.create({
       authorId: new UniqueEntityID(authorId),
       questionId: new UniqueEntityID(questionId),
-      content
+      content,
     })
 
     await this.questionCommentsRepository.create(questionComment)

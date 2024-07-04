@@ -7,7 +7,6 @@ export interface AnswerCommentProps extends CommentProps {
 }
 
 export class AnswerComment extends Comment<AnswerCommentProps> {
-
   get answerId() {
     return this.props.answerId
   }
@@ -19,7 +18,7 @@ export class AnswerComment extends Comment<AnswerCommentProps> {
     const answerComment = new AnswerComment(
       {
         ...props,
-        createdAt: props.createdAt ?? new Date(), 
+        createdAt: props.createdAt ?? new Date(),
       },
       id,
     )

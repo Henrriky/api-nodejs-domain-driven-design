@@ -1,6 +1,5 @@
 import { Either, success } from '@/core/either'
 import { Answer } from '../../enterprise/entities/Answer'
-import { Question } from '../../enterprise/entities/Question'
 import { AnswersRepository } from '../repositories/answers-repository'
 
 interface FetchQuestionAnswersUseCaseInput {
@@ -11,7 +10,7 @@ interface FetchQuestionAnswersUseCaseInput {
 type FetchQuestionAnswersUseCaseOutput = Either<
   null,
   {
-  answers: Answer[]
+    answers: Answer[]
   }
 >
 
@@ -20,10 +19,10 @@ export class FetchQuestionAnswersUseCase {
 
   async execute({
     page,
-    questionId
+    questionId,
   }: FetchQuestionAnswersUseCaseInput): Promise<FetchQuestionAnswersUseCaseOutput> {
     const answers = await this.answersRepository.findManyByTopicId(questionId, {
-      page
+      page,
     })
 
     return success({

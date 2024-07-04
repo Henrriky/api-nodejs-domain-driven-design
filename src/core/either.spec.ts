@@ -1,7 +1,7 @@
-import { Either, failure, success } from "./either"
+import { Either, failure, success } from './either'
 
 function doSomething(shouldSuccess: boolean): Either<string, number> {
-  if(shouldSuccess) {
+  if (shouldSuccess) {
     return success(10)
   } else {
     return failure('failure')
@@ -9,7 +9,6 @@ function doSomething(shouldSuccess: boolean): Either<string, number> {
 }
 
 test('success result', () => {
-
   const result = doSomething(true)
 
   if (result.isSuccess()) {
@@ -21,7 +20,6 @@ test('success result', () => {
 })
 
 test('failure result', () => {
-
   const result = doSomething(false)
 
   expect(result.isSuccess()).toBe(false)
