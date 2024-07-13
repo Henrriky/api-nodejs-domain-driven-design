@@ -1,7 +1,7 @@
 import { Either, failure, success } from '@/core/either'
 import { AnswersRepository } from '../repositories/answers-repository'
-import { ResourceNotFoundError } from './errors/resource-not-found-error'
-import { NotAllowedError } from './errors/not-allowed-error'
+import { ResourceNotFoundError } from '@/core/error/resource-not-found-error'
+import { NotAllowedError } from '@/core/error/not-allowed-error'
 
 interface DeleteAnswerUseCaseInput {
   authorId: string

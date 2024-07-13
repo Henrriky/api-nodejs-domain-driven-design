@@ -1173,3 +1173,103 @@ export class EditQuestionUseCase {
 - Notificações ao cliente
 - Promoções
 - Chat
+
+## Subdomínio de notificações
+
+- Estrutura geral:
+  - `src/domain/forum`
+    - `src/domain/forum/application`
+      - `application/gateways`
+        - `gateways/repositories`
+        - `gateways/services`
+      - `application/use-cases`
+        - `use-cases/errors`
+    - `src/domain/forum/enterprise`
+      - `enterprise/entities`
+      - `enterprise/value-objects`
+  - `src/infra`
+- Criar pasta do subdomain notification em domain
+  - Criar `domain/notification/application`: 
+    - `application/repositories`: Interfaces que possuem um contrato, e que permitem que os casos de uso utilizem eles para se comunicar com a camada anterior a eles, que é a de infra.
+    - `application/use-cases`: Funcionalidades do negócio ou domínio, que utilizam os `Gateways` ou `Contracts` para se comunicar com uma camada mais acima.
+    - `application/use-cases/errors`: Erros de domínio
+  - Criar `domain/notification/enterprise`
+    - `enterprise/entities`: Contém os modelos de domínio
+    - `enterprise/entities/value-objects`: Contém os objetos de valor que são usados pelas entidades
+```ts
+import { Entity } from '@/core/entities/entity'
+import { UniqueEntityID } from '@/core/entities/unique-entity-id'
+import { Optional } from '@/core/types/optional'
+
+interface NotificationProps {
+  recipientId: UniqueEntityID
+  title: string
+  message: string
+  createdAt: Date
+  readAt?: Date
+}
+
+export class Notification extends Entity<NotificationProps> {
+  get recipientId() {
+    return this.props.recipientId
+  }
+
+  get title() {
+    return this.props.title
+  }
+
+  get message() {
+    return this.props.message
+  }
+
+  get readAt() {
+    return this.props.readAt
+  }
+
+  get createdAt() {
+    return this.props.createdAt
+  }
+
+  static create(
+    props: Optional<NotificationProps, 'createdAt'>,
+    id?: UniqueEntityID,
+  ) {
+    const notification = new Notification(
+      {
+        createdAt: props.createdAt ?? new Date(),
+        ...props,
+      },
+      id,
+    )
+
+    return notification
+  }
+}
+```
+- Como o domínio core e os subdomínios são coisas independentes, não podemos criar um pensando no outro, pois isso implica em um acoplamento maior, para evitar que isso aconteça, é necessário pensar na Notificação como algo independente, que não depende diretamente do domínio Forum
+- Para que a gente realiza a integração entre dois domínios são utilizados DomainEvents
+
+
+### Casos de uso
+
+#### Envio de notificação
+
+- [X] Como autor da Pergunta, Resposta ou Comentário quero receber uma notificação do sistema quando alguma coisa mudar, para que possa acompanhar o recurso.
+- Lógica:
+  - Criação do caso de uso Enviar Notificação
+    - Criar notificação recebida pelo Input
+    - Retornar notificação criada
+  - Criação NotificationRepository (Gateway or Port)
+  - Criação do InMemoryNotificationsRepository (Infra, Adapter or Implementation)
+  - Criação do teste Enviar Notificação que utiliza InMemoryNotificationsRepository
+
+### Ler notificação
+
+- [X] Como destinatário da notificação quero ser capaz de ler a notificação e ver o conteúdo dela, para que eu possa ficar informado do que aconteceu.
+- Lógica:
+  - Criação do caso de uso Ler Notificação
+    - Modificar a notificação para lida, baseado no id recebido pelo Input
+    - Retornar notificação atualizada
+  - Criação do método `update` em NotificationRepository (Gateway or Port)
+  - Criação do InMemoryNotificationsRepository (Infra, Adapter or Implementation)
+  - Criação do teste Enviar Notificação que utiliza InMemoryNotificationsRepository
