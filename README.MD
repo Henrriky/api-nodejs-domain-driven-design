@@ -1147,3 +1147,29 @@ export class EditQuestionUseCase {
 
 - Deletar uma pergunta também deve deletar todos os attachments relacionados
 - Para fazer isso vamos receber dentro de um repository, a interface para outro repository
+
+# Subdominios
+
+- Core: O que é necessário
+- Supporting: O que dá suporte para o core funcionar
+- Generic: O que o cliente precisa, mas que não importa
+
+## Exemplos
+
+### Core
+
+- Compra
+- Catalogo
+- Pagamento
+- Entrega
+- Faturamento
+
+### Supporting
+
+- Estoque
+
+### Generic
+
+- Notificações ao cliente
+- Promoções
+- Chat

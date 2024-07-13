@@ -1,9 +1,9 @@
 import { UniqueEntityID } from '@/core/entities/unique-entity-id'
-import { faker } from '@faker-js/faker'
+import {} from '@/domain/forum/enterprise/entities/Answer-Comment'
 import {
-} from '@/domain/forum/enterprise/entities/Answer-Comment'
-import { QuestionAttachment, QuestionAttachmentProps } from '@/domain/forum/enterprise/entities/Question-Attachment'
-
+  QuestionAttachment,
+  QuestionAttachmentProps,
+} from '@/domain/forum/enterprise/entities/Question-Attachment'
 
 export function makeQuestionAttachment(
   override: Partial<QuestionAttachmentProps> = {},
