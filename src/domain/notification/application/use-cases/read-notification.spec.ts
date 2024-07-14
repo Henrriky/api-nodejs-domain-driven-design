@@ -24,7 +24,6 @@ describe('Read Notification', () => {
       recipientId: newNotification.recipientId.toString(),
       notificationId: newNotification.id.toString(),
     })
-    console.log(result.value)
     expect(result.isSuccess()).toBe(true)
     expect(
       (result.value as { notification: Notification }).notification.title,

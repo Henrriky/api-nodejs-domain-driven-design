@@ -1263,7 +1263,7 @@ export class Notification extends Entity<NotificationProps> {
   - Criação do InMemoryNotificationsRepository (Infra, Adapter or Implementation)
   - Criação do teste Enviar Notificação que utiliza InMemoryNotificationsRepository
 
-### Ler notificação
+#### Ler notificação
 
 - [X] Como destinatário da notificação quero ser capaz de ler a notificação e ver o conteúdo dela, para que eu possa ficar informado do que aconteceu.
 - Lógica:
@@ -1273,3 +1273,29 @@ export class Notification extends Entity<NotificationProps> {
   - Criação do método `update` em NotificationRepository (Gateway or Port)
   - Criação do InMemoryNotificationsRepository (Infra, Adapter or Implementation)
   - Criação do teste Enviar Notificação que utiliza InMemoryNotificationsRepository
+
+# Fluxos de eventos de domínio
+
+- Domain Events são `Events` que ocorrem dentro do escopo de um determinado `Subdomain` e que notificam ou geram uma ação em outros `Subdomain`
+  - Exemplos de `Domain events`: Quando for criado no `Subdomain Forum` um comentário na pergunta, deve ser enviado uma notificação no `Subdomain Notification`para o autor da pergunta. Nesse caso o evento é "comment.created"
+  - Exemplos de `Domain events`: Quando for criado no `Subdomain Forum` uma resposta para uma pergunta, deve ser enviado uma notificação no `Subdomain Notification para o autor da pergunta
+- É comum no DDD realizarmos o mapeamento do fluxo desses `Events` entre os `Subdomains`, para que seja mais fácil mapear o fluxo dos dados entre essas partes.
+- Normalmente, quando utilizamos esse modelo de chamar um caso de uso de outro domínio é comum chamar diretamente o caso de uso de enviar notificação, no entanto, tal abordagem acaba criando um `Acoplamento entre os casos de uso`, e um dos princípios da manutenção do software é diminuir ao máximo o acoplamento entre os componentes do nosso código. Para evitar isso, existem diversas abordagens, livros como `DDD`, `Clean Architecture`, `Design patterns do catálogo GOF` sempre citam como podemos diminuir o acoplamento através de técnicas.
+
+- No nosso caso, o primeiro passo vai ser utilizar a entidade `Answer` para centralizar a operação `Create`, uma vez que os casos de uso que utilizam esse método dependem diretamente dele. 
+- O segundo passo será utilizar a estrutura de `Pub/Sub`, essa estrutura permite realizar a comunicação entre duas partes do sistema sem que elas se conheçam.
+  - Quando tiver uma qualquer evento que gere uma notificação nós vamos `Publicar` uma mensagem dentro de uma estrutura de dados (pode ser um array)
+  [
+    { event: 'create-answer', answer: {}, topic: {} ... }
+  ]
+  - Um `Subscriber` fica escutando a `Publicação` dos `Evento` que ele se inscreveu, caso o evento disparado seja algum dos que ele esteja esperando e esteja pronto, então uma ação é executada a partir dele.
+  - Por fim, vamos ter uma propriedade no nosso objeto de eventos que nada mais é do que uma informação se o evento está pronto ou não, pois nem sempre quando criar uma nova Resposta quer dizer que uma resposta foi de fato criada e sim depois que ela for persistida no banco de dados.
+  - Com essa estrutura, cada subdomain pode existir de forma independente, evitando o acoplamento entre os componentes do sistema.
+
+## Estrutura de Domain Events
+
+- Antes de qualquer coisa, é necessário criar um `Event Handler`, que é uma classe que vai permitir que a gente realiza o `register` dos nossos `subscribers` para um determinado `Domain Event`
+- Quando a `Answer` for criada, nós marcamos que o `Domain Event` existe, chamando:
+  - `AggregateRoot.addDomainEvent` -> `DomainEvents.markAggregateForDispatch(this)`
+- Quando o banco de dados salvar a `Answer`, nós disparamos o `Domain Event` anotado, chamando: 
+  - `DomainEvents.dispatchEventsForAggregate()`
