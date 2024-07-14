@@ -1299,3 +1299,16 @@ export class Notification extends Entity<NotificationProps> {
   - `AggregateRoot.addDomainEvent` -> `DomainEvents.markAggregateForDispatch(this)`
 - Quando o banco de dados salvar a `Answer`, nós disparamos o `Domain Event` anotado, chamando: 
   - `DomainEvents.dispatchEventsForAggregate()`
+
+## Criando estrutura para Domain Event de Resposta Criada
+
+- Definir um determinado evento `AnswerCreatedEvent`
+- Definir qual a classe que vai permitir que o evento `AnswerCreatedEvent` seja registrado no gerenciador de eventos: 
+  - No caso o `Answer` AggregateRoot que chama `AggregateRoot.addDomainEvent(AnswerCreatedEvent)` quando uma nova `Answer` é criada.
+- Definir a classe que será o `Publisher` do `AnswerCreatedEvent`
+  - No caso o `AnswersRepository` chama `DomainEvents.dispatchEventsForAggregate(answer.id)`
+- Definir a classe que será o `Subscriber` do `AnswerCreatedEvent`, que será `OnAnswerCreatedEvent`
+- Definir quais serão os casos de uso ou serviços que serão chamados quando `OnAnswerCreatedEvent` for chamado
+```ts
+
+```
